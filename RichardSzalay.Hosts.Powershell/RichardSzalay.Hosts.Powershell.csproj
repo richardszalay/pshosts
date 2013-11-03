@@ -22,7 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <StartAction>Program</StartAction>
     <StartProgram>$(WINDIR)\System32\WindowsPowerShell\v1.0\powershell.exe</StartProgram>
-    <StartArguments>-NoExit -Command "Import-Module .\$(AssemblyName).dll"</StartArguments>
+    <StartArguments>-NoExit -Command "Import-Module .\PsHosts.psd1"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -64,10 +64,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HostEntry.format.ps1xml">
+    <None Include="PsHosts.format.ps1xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="HostEntry.psd1">
+    <None Include="PsHosts.psd1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
