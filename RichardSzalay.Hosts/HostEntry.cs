@@ -170,6 +170,18 @@ namespace RichardSzalay.Hosts
                 other.comment == this.comment;
         }
 
+        public override bool Equals(object obj)
+        {
+            HostEntry other = obj as HostEntry;
+
+            if (other != null)
+            {
+                return Equals(other);
+            }
+
+            return base.Equals(obj);
+        }
+
         #endregion
 
         public static bool IsIgnoredHostname(string hostname)

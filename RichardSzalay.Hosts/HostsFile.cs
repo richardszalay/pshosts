@@ -31,7 +31,7 @@ namespace RichardSzalay.Hosts
         {
         }
 
-        internal HostsFile(string filename)
+        public HostsFile(string filename)
             : this(new FileInfoResource(filename))
         {
 
