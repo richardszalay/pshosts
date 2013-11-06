@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichardSzalay.Hosts.Powersh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichardSzalay.Hosts.Tests", "RichardSzalay.Hosts.Tests\RichardSzalay.Hosts.Tests.csproj", "{63DB2D15-8AFA-4CC2-8A05-16208308FE06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichardSzalay.Hosts.Powershell.Tests", "RichardSzalay.Hosts.Powershell.Tests\RichardSzalay.Hosts.Powershell.Tests.csproj", "{72CE6E1E-FAEA-4D86-92DD-128C911714CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{63DB2D15-8AFA-4CC2-8A05-16208308FE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63DB2D15-8AFA-4CC2-8A05-16208308FE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63DB2D15-8AFA-4CC2-8A05-16208308FE06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72CE6E1E-FAEA-4D86-92DD-128C911714CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72CE6E1E-FAEA-4D86-92DD-128C911714CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72CE6E1E-FAEA-4D86-92DD-128C911714CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72CE6E1E-FAEA-4D86-92DD-128C911714CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
