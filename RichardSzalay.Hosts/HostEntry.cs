@@ -182,6 +182,11 @@ namespace RichardSzalay.Hosts
             return base.Equals(obj);
         }
 
+        public override int GetHashCode()
+        {
+            return Line ^ hostname.GetHashCode();
+        }
+
         #endregion
 
         public static bool IsIgnoredHostname(string hostname)
