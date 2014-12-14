@@ -27,7 +27,7 @@ namespace RichardSzalay.Hosts
         private static readonly Regex lineRegex = new Regex(EntryExpression);
 
         public HostsFile()
-            : this(HostsFileLocation)
+            : this(DefaultHostsFileLocation)
         {
         }
 
@@ -210,8 +210,6 @@ namespace RichardSzalay.Hosts
                 hostname, address, comment);
         }
 
-
-
         private string[] ReadAllLines(Stream stream)
         {
             List<string> lines = new List<string>();
@@ -230,6 +228,28 @@ namespace RichardSzalay.Hosts
             return lines.ToArray();
         }
 
-        private const string HostsFileLocation = @"%windir%\system32\drivers\etc\hosts";
+        private static string DefaultHostsFileLocation
+        {
+            get
+            {
+                // Technically http://stackoverflow.com/a/5117005/3603
+                // but I'm not really going for .NET 1.0/1.1 support here
+
+                switch(Environment.OSVersion.Platform)
+                {
+                    case PlatformID.Unix:
+                        return "/etc/hosts";
+                    case PlatformID.MacOSX:
+                        return "/private/etc/hsots";
+                    case PlatformID.Win32NT:
+                    case PlatformID.Win32S:
+                    case PlatformID.Win32Windows:
+                    case PlatformID.WinCE:
+                        return @"%windir%\system32\drivers\etc\hosts";
+                    default:
+                        throw new NotSupportedException("Unable to detect hosts location for platform: " + Environment.OSVersion.Platform);
+                }
+            }
+        }
     }
 }
