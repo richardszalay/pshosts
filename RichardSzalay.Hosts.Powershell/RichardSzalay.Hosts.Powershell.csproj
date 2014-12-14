@@ -77,4 +77,20 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="Zip.tasks" />
+  <Target Name="PackagePsGetArchive" AfterTargets="Build" Condition="'$(PackagePsGetArchive)'=='true'">
+	<ItemGroup>
+		<PsGetPackageFiles Include="$(OutputPath)PsHosts.psd1" />
+		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.HostEntry.dll" />
+		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.Hosts.Powershell.dll" />
+		<PsGetPackageFiles Include="$(OutputPath)PsHosts.ParameterCompletion.psm1" />
+		<PsGetPackageFiles Include="$(OutputPath)PsHosts.format.ps1xml" />
+	</ItemGroup>
+	
+	<Zip
+		InputFileNames="@(PsGetPackageFiles)"
+		OutputFileName="$(OutputPath)PsHosts.zip"
+		OverwriteExistingFile="true" />
+  </Target>
+  
 </Project>
