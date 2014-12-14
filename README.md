@@ -6,7 +6,7 @@ All destructive commands support `-whatif` and honor original formatting whereve
 
 ## Installation
 
-Recommended installation is to use PsGet:
+Recommended installation is to use [PsGet](http://psget.net/)
 
     PS C:\> install-module PsHosts
 
