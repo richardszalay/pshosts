@@ -53,6 +53,11 @@ namespace RichardSzalay.Hosts.Powershell
                     {
                         hostEntry.Enabled = Enabled;
                     }
+
+                    if (Line != -1 && !String.IsNullOrEmpty(Name))
+                    {
+                        hostEntry.Name = Name;
+                    }
                 }
             }
         }

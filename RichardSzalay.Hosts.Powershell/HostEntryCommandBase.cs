@@ -25,6 +25,7 @@ namespace RichardSzalay.Hosts.Powershell
             if (line != -1 && MyInvocation.BoundParameters.Keys.Contains("Line"))
             {
                 hostEntries = hostEntries.Where(e => e.Line == line).ToList();
+                return hostEntries.Count == 1;
             }
 
             if (String.IsNullOrEmpty(name))
