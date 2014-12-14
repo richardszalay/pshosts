@@ -28,7 +28,7 @@ namespace RichardSzalay.Hosts.Powershell
             {
                 if (ShouldProcess(hostEntry.ToShortString(), "Enabled host entry"))
                 {
-                    hostEntry.Enabled = false;
+                    hostEntry.Enabled = true;
                 }
             }
 
