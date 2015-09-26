@@ -6,11 +6,11 @@ All destructive commands support `-whatif` and honor original formatting whereve
 
 ## Installation
 
-Recommended installation is to use [PsGet](http://psget.net/)
+Windows 10 users can simply install the module using the command below. For Windows 8.1 and below, [PsGet](http://psget.net/) can be used with the same command.
 
-    PS C:\> install-module PsHosts
+    PS C:\> Install-Module PsHosts
 
-Otherwise, download a release and unzip to $home\Documents\WindowsPowerShell\Modules\PsHosts
+To install manually, download a release and unzip to $home\Documents\WindowsPowerShell\Modules\PsHosts
 
 ## Usage
 
