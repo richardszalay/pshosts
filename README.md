@@ -4,6 +4,8 @@
 
 All destructive commands support `-whatif` and honor original formatting wherever possible.
 
+![PsHosts in action](img/demo.gif?raw=true)
+
 ## Installation
 
 Windows 10 users can simply install the module using the command below. For Windows 8.1 and below, [PsGet](http://psget.net/) can be used with the same command.
