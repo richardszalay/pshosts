@@ -17,9 +17,7 @@ namespace RichardSzalay.Hosts.Powershell
 
         protected override void ProcessRecord()
         {
-            ICollection<HostEntry> hostEntries;
-
-            if (!base.TryGetHostEntries(HostsFile, Name, Line, out hostEntries))
+            if (!base.TryGetHostEntries(HostsFile, Name, Line, out ICollection<HostEntry> hostEntries))
             {
                 return;
             }

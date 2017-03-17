@@ -2,7 +2,7 @@
 
 namespace RichardSzalay.Hosts
 {
-    internal interface IResource
+    public interface IResource
     {
         Stream OpenRead();
         Stream OpenWrite();

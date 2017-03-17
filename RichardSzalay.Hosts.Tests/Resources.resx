@@ -119,24 +119,24 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ComplexHostsFile_Before" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ComplexHostsFile_Before.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\ComplexHostsFile_Before.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="ComplexHostsFile_Expected" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ComplexHostsFile_Expected.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\ComplexHostsFile_Expected.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="DefaultHostsFile" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DefaultHostsFile.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\DefaultHostsFile.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="SampleHostsFile" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SampleHostsFile.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\SampleHostsFile.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="SampleHostsFile_Delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SampleHostsFile_Delete.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\SampleHostsFile_Delete.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="SampleHostsFile_Disable" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SampleHostsFile_Disable.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\SampleHostsFile_Disable.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="SampleHostsFile_Reorder" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SampleHostsFile_Reorder.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>.\Resources\SampleHostsFile_Reorder.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

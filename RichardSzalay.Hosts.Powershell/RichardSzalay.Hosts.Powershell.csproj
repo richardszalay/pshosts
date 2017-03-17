@@ -1,96 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{20EFFACA-B6EC-4411-BA73-C21B3B2C62D0}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>netstandard1.6</TargetFramework>
     <RootNamespace>RichardSzalay.Hosts.Powershell</RootNamespace>
     <AssemblyName>RichardSzalay.Hosts.Powershell</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <StartAction>Program</StartAction>
-    <StartProgram>$(WINDIR)\System32\WindowsPowerShell\v1.0\powershell.exe</StartProgram>
-    <StartArguments>-NoExit -Command "Import-Module .\PsHosts.psd1"</StartArguments>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\v1.0\System.Management.Automation.dll</HintPath>
-    </Reference>
+    <PackageReference Include="System.Management.Automation" Version="6.0.0-alpha17" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="AddHostEntryCommand.cs" />
-    <Compile Include="DisableHostEntryCommand.cs" />
-    <Compile Include="EnableHostEntryCommand.cs" />
-    <Compile Include="SetHostEntryCommand.cs" />
-    <Compile Include="RemoveHostEntryCommand.cs" />
-    <Compile Include="GetHostEntryCommand.cs" />
-    <Compile Include="HostEntryCommandBase.cs" />
-    <Compile Include="Nouns.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WriteHostEntryCommandBase.cs" />
+    <ProjectReference Include="..\RichardSzalay.Hosts\RichardSzalay.Hosts.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\RichardSzalay.Hosts\RichardSzalay.Hosts.csproj">
-      <Project>{d3df6fea-c264-437b-8ab5-26cecc5ef5b9}</Project>
-      <Name>RichardSzalay.Powershell.HostEntry</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PsHosts.format.ps1xml">
+    <None Update="PsHosts.format.ps1xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PsHosts.ParameterCompletion.psm1">
+    <None Update="PsHosts.ParameterCompletion.psm1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PsHosts.psd1">
+    <None Update="PsHosts.psd1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Import Project="Zip.tasks" />
-  <Target Name="PackagePsGetArchive" AfterTargets="Build" Condition="'$(PackagePsGetArchive)'=='true'">
-	<ItemGroup>
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.psd1" />
-		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.HostEntry.dll" />
-		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.Hosts.Powershell.dll" />
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.ParameterCompletion.psm1" />
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.format.ps1xml" />
-	</ItemGroup>
-	
-	<Zip
-		InputFileNames="@(PsGetPackageFiles)"
-		OutputFileName="$(OutputPath)PsHosts.zip"
-		OverwriteExistingFile="true" />
-  </Target>
-  
+
 </Project>

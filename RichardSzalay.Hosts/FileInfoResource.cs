@@ -3,7 +3,7 @@ using System.IO;
 
 namespace RichardSzalay.Hosts
 {
-    internal class FileInfoResource : IResource
+    public class FileInfoResource : IResource
     {
         private FileInfo file;
 

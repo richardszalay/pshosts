@@ -68,16 +68,14 @@ namespace RichardSzalay.Hosts.Powershell
 
         void ValidateAddress(string address)
         {
-            IPAddress ipAddress;
-
-            if (!IPAddress.TryParse(address, out ipAddress))
+            if (!IPAddress.TryParse(address, out IPAddress ipAddress))
             {
                 WriteWarning(String.Format("'{0}' is not a valid IP address", address));
             }
         }
         private bool HostEntryExists(IEnumerable<HostEntry> entries, string name)
         {
-            return entries.Any(e => String.Equals(e.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            return entries.Any(e => String.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
     }

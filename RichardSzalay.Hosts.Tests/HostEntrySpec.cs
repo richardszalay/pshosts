@@ -3,423 +3,270 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xunit;
 
 namespace RichardSzalay.Hosts.Tests
 {
     public class HostEntrySpec
     {
-        [Subject(typeof(HostEntry))]
-        public class When_constructing_a_host_entry_from_the_public_api
+        [Fact]
+        public void Constructing_a_new_host_entry_assigns_appropriate_properties()
         {
-            Because of = () =>
-                result = new HostEntry("hostname", "address", "comment");
+            var result = new HostEntry("hostname", "address", "comment");
 
-            It should_assign_the_given_hostname = () =>
-                result.Name.ShouldEqual("hostname");
-
-            It should_assign_the_given_address = () =>
-                result.Address.ShouldEqual("address");
-
-            It should_assign_the_given_comment = () =>
-                result.Comment.ShouldEqual("comment");
-
-            It should_be_enabled = () =>
-                result.Enabled.ShouldBeTrue();
-
-            It should_not_refer_to_a_valid_line = () =>
-                result.Line.ShouldEqual(-1);
-
-            It should_be_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
-
-            It should_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeTrue();
-
-            static HostEntry result;
+            Assert.Equal("hostname", result.Name);
+            Assert.Equal("address", result.Address);
+            Assert.Equal("comment", result.Comment);
+            Assert.True(result.Enabled);
+            Assert.Equal(-1, result.Line);
+            Assert.True(result.IsDirty);
+            Assert.True(result.IsNew);
         }
 
-        [Subject(typeof(HostEntry))]
-        public class When_constructing_a_host_entry_from_the_hosts_file
+        [Fact]
+        public void Loading_a_host_entry_assigns_appropriate_properties()
         {
-            Because of = () =>
-                result = new HostEntry(5, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(5, "original-line", " ", false, "hostname", "address", "comment");
 
-            It should_assign_the_given_hostname = () =>
-                result.Name.ShouldEqual("hostname");
-
-            It should_assign_the_given_address = () =>
-                result.Address.ShouldEqual("address");
-
-            It should_assign_the_given_comment = () =>
-                result.Comment.ShouldEqual("comment");
-
-            It should_assign_the_given_enabled_State = () =>
-                result.Enabled.ShouldBeFalse();
-
-            It should_assign_the_given_line_number = () =>
-                result.Line.ShouldEqual(5);
-
-            It should_not_be_dirty = () =>
-                result.IsDirty.ShouldBeFalse();
-
-            It should_not_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeFalse();
-
-            static HostEntry result;
+            Assert.Equal("hostname", result.Name);
+            Assert.Equal("address", result.Address);
+            Assert.Equal("comment", result.Comment);
+            Assert.False(result.Enabled);
+            Assert.Equal(5, result.Line);
+            Assert.False(result.IsDirty);
+            Assert.False(result.IsNew);
         }
 
-        [Subject(typeof(HostEntry), "IsNew")]
-        public class When_constructing_a_host_entry_from_line_zero
+        [Fact]
+        public void Entries_constructed_as_line_zero_are_not_new()
         {
-            Because of = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            It should_not_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeFalse();
-
-            static HostEntry result;
+            Assert.False(result.IsNew);
         }
 
-        [Subject(typeof(HostEntry), "IsDirty")]
-        public class When_modifying_an_instance_without_changing_values
+        [Fact]
+        public void Modifying_an_instance_without_changing_values_does_not_mark_it_as_dirty()
         {
-            Establish context = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-            {
-                result.Enabled = false;
-                result.Name = "hostname";
-                result.Address = "address";
-                result.Comment = "comment";
-            };
+            result.Enabled = false;
+            result.Name = "hostname";
+            result.Address = "address";
+            result.Comment = "comment";
 
-            It should_not_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeFalse();
-
-            static HostEntry result;
+            Assert.False(result.IsDirty);
         }
 
-        [Subject(typeof(HostEntry), "IsDirty")]
-        public class When_modifying_an_entrys_hostname
+        [Fact]
+        public void Modifying_hostname_marks_instance_as_dirty()
         {
-            Establish context = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result.Name = "hostname2";
+            result.Name = "hostname2";
 
-            It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
-
-            static HostEntry result;
+            Assert.True(result.IsDirty);
         }
 
-        [Subject(typeof(HostEntry), "IsDirty")]
-        public class When_modifying_an_entrys_address
+        [Fact]
+        public void Modifying_address_marks_instance_as_dirty()
         {
-            Establish context = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result.Address = "address2";
+            result.Address = "address2";
 
-            It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
-
-            static HostEntry result;
+            Assert.True(result.IsDirty);
         }
 
-        [Subject(typeof(HostEntry), "IsDirty")]
-        public class When_modifying_an_entrys_comment
+        [Fact]
+        public void Modifying_comment_marks_instance_as_dirty()
         {
-            Establish context = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result.Comment = "comment2";
+            result.Comment = "comment2";
 
-            It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
-
-            static HostEntry result;
+            Assert.True(result.IsDirty);
         }
 
-        [Subject(typeof(HostEntry), "IsDirty")]
-        public class When_modifying_an_entrys_enabled_state
+        [Fact]
+        public void Modifying_enabled_marks_instance_as_dirty()
         {
-            Establish context = () =>
-                result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            var result = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result.Enabled = true;
+            result.Enabled = true;
 
-            It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
-
-            static HostEntry result;
+            Assert.True(result.IsDirty);
         }
 
-        [Subject(typeof(HostEntry), "SwapLine")]
-        public class When_swapping_the_position_of_two_entries
+        [Fact]
+        public void Swapping_positions_changes_both_line_numbers()
         {
-            Establish context = () =>
-            {
-                entryA = new HostEntry(5, "original-line", " ", false, "hostname", "address", "comment");
-                entryB = new HostEntry(10, "original-line", " ", false, "hostname", "address", "comment");
-            };
+            var entryA = HostEntry.FromFileEntry(5, "original-line", " ", false, "hostname", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(10, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                entryA.SwapLine(entryB);
+            entryA.SwapLine(entryB);
 
-            It should_mark_the_swapper_as_dirty = () =>
-                entryA.IsDirty.ShouldBeTrue();
+            Assert.True(entryA.IsDirty);
+            Assert.True(entryB.IsDirty);
 
-            It should_assign_the_swapees_line_number_to_the_swapper = () =>
-                entryA.Line.ShouldEqual(10);
-
-            It should_mark_the_swappee_as_dirty = () =>
-                entryB.IsDirty.ShouldBeTrue();
-
-            It should_assign_the_swapers_line_number_to_the_swappee = () =>
-                entryB.Line.ShouldEqual(5);
-
-            static HostEntry entryA;
-            static HostEntry entryB;
+            Assert.Equal(10, entryA.Line);
+            Assert.Equal(5, entryB.Line);
         }
 
-        [Subject(typeof(HostEntry), "SwapLine")]
-        public class When_swapping_position_with_a_new_entry
+        [Fact]
+        public void Swapping_with_a_new_entry_swaps_new_status()
         {
-            Establish context = () =>
-            {
-                entryA = new HostEntry(-1, "original-line", " ", false, "hostname", "address", "comment");
-                entryB = new HostEntry(10, "original-line", " ", false, "hostname", "address", "comment");
-            };
+            var entryA = HostEntry.FromFileEntry(-1, "original-line", " ", false, "hostname", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(10, "original-line", " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                entryA.SwapLine(entryB);
+            entryA.SwapLine(entryB);
 
-            It should_also_swap_the_new_status = () =>
-            {
-                entryA.IsNew.ShouldBeFalse();
-                entryB.IsNew.ShouldBeTrue();
-            };
+            Assert.False(entryA.IsNew);
+            Assert.True(entryB.IsNew);
 
-            static HostEntry entryA;
-            static HostEntry entryB;
+            Assert.Equal(10, entryA.Line);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_that_is_disabled
+        [Fact]
+        public void Disabled_host_entries_self_format_with_hash()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, " ", false, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, null, " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_prefix_the_result_with_a_comment_character = () =>
-                result.ShouldStartWith("#");
-
-            static HostEntry sut;
-            static string result;
+            Assert.StartsWith("#", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_that_is_enabled
+        [Fact]
+        public void Enabled_host_entries_do_not_self_format_with_hash()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, " ", true, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, null, " ", true, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_not_prefix_the_result_with_a_comment_character = () =>
-                result.ShouldStartWith("address");
-
-            static HostEntry sut;
-            static string result;
+            Assert.StartsWith("address", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_with_a_previous_spacing_policy
+        [Fact]
+        public void Existing_spacing_policy_is_honoured()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, "\t", false, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, null, "\t", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_regenerate_using_the_same_spacing_policy = () =>
-                result.ShouldEqual("# address\thostname # comment");
-
-            static HostEntry sut;
-            static string result;
+            Assert.Equal("# address\thostname # comment", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_with_a_comment
+        [Fact]
+        public void Comments_are_added_to_the_end_of_the_formatted_line()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, "\t", true, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, null, "\t", true, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_regenerate_using_the_same_spacing_policy = () =>
-                result.ShouldEndWith(" # comment");
-
-            static HostEntry sut;
-            static string result;
+            Assert.EndsWith(" # comment", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_with_no_comment
+        [Fact]
+        public void Commentless_entries_do_not_include_comment_character()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, "\t", true, "hostname", "address", null);
+            var sut = HostEntry.FromFileEntry(0, null, "\t", true, "hostname", "address", null);
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_not_include_an_empty_comment = () =>
-                result.ShouldEndWith("hostname");
-
-            static HostEntry sut;
-            static string result;
+            Assert.EndsWith("hostname", result);
         }
 
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_that_is_dirty
+        [Fact]
+        public void Dirty_entries_regenerate_line()
         {
-            Establish context = () =>
-            {
-                sut = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
-                sut.Name = "hostname2";
-            };
+            var sut = HostEntry.FromFileEntry(0, "original-line", " ", false, "hostname", "address", "comment");
+            sut.Name = "hostname2";
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_regenerate_the_line = () =>
-                result.ShouldEqual("# address hostname2 # comment");
-
-            static HostEntry sut;
-            static string result;
+            Assert.Equal("# address hostname2 # comment", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_that_is_not_dirty_but_has_no_original_line
+        [Fact]
+        public void Entries_with_no_original_line_regenerate_line()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, null, " ", false, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, null, " ", false, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_generate_the_line = () =>
-                result.ShouldEqual("# address hostname # comment");
-
-            static HostEntry sut;
-            static string result;
+            Assert.Equal("# address hostname # comment", result);
         }
 
-        [Subject(typeof(HostEntry), "ToString")]
-        public class When_formatting_a_host_entry_that_is_not_dirty
+        [Fact]
+        public void Unchanged_entries_format_using_original_line()
         {
-            Establish context = () =>
-                sut = new HostEntry(0, "original-line", " ", true, "hostname", "address", "comment");
+            var sut = HostEntry.FromFileEntry(0, "original-line", " ", true, "hostname", "address", "comment");
 
-            Because of = () =>
-                result = sut.ToString();
+            var result = sut.ToString();
 
-            It should_not_regenerate_the_line = () =>
-                result.ShouldEqual("original-line");
-
-            static HostEntry sut;
-            static string result;
+            Assert.Equal("original-line", result);
         }
 
-        [Subject(typeof(HostEntry), "Equals")]
-        class When_comparing_two_identical_host_entries : HostEntryComparisonContext
+        [Fact]
+        public void When_comparing_two_identical_host_entries()
         {
-            It should_return_true = () =>
-                result.ShouldBeTrue();
+            var entryA = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address", "comment");
+
+            var result = entryA.Equals(entryB);
+
+            Assert.True(result);
         }
 
-        [Subject(typeof(HostEntry), "Equals")]
-        class When_comparing_two_host_entries_with_different_hostnames : HostEntryComparisonContext
+        [Fact]
+        public void When_comparing_two_host_entries_with_different_hostnames()
         {
-            Establish context = () =>
-                entryB.Name = "hostname2";
+            var entryA = HostEntry.FromFileEntry(5, null, "    ", false, "hostname1", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(5, null, "    ", false, "hostname2", "address", "comment");
 
-            It should_return_false = () =>
-                result.ShouldBeFalse();
+            var result = entryA.Equals(entryB);
+
+            Assert.False(result);
         }
 
-        [Subject(typeof(HostEntry), "Equals")]
-        class When_comparing_two_host_entries_with_different_addresses : HostEntryComparisonContext
+        [Fact]
+        public void When_comparing_two_host_entries_with_different_addresses()
         {
-            Establish context = () =>
-                entryB.Address = "address2";
+            var entryA = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address2", "comment");
 
-            It should_return_false = () =>
-                result.ShouldBeFalse();
+            var result = entryA.Equals(entryB);
+
+            Assert.False(result);
         }
 
-        [Subject(typeof(HostEntry), "Equals")]
-        class When_comparing_two_host_entries_with_different_comments : HostEntryComparisonContext
+        [Fact]
+        public void When_comparing_two_host_entries_with_different_comments()
         {
-            Establish context = () =>
-            {
-                entryA = new HostEntry(5, null, "    ", false, "hostname", "address", "comment");
-                entryB = new HostEntry(6, null, "    ", false, "hostname", "address", "comment");
-            };
+            var entryA = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address", "comment");
+            var entryB = HostEntry.FromFileEntry(5, null, "    ", false, "hostname", "address", "comment2");
 
-            It should_return_false = () =>
-                result.ShouldBeFalse();
+            var result = entryA.Equals(entryB);
+
+            Assert.False(result);
         }
 
-        class HostEntryComparisonContext
+        [Fact]
+        public void Known_sample_hostnames_are_ignored()
         {
-            Establish context = () =>
-            {
-                entryA = new HostEntry(5, null, "    ", false, "hostname", "address", "comment");
-                entryB = new HostEntry(5, null, "    ", false, "hostname", "address", "comment");
-            };
+            var result = HostEntry.IsIgnoredHostname("rhino.acme.com");
 
-            Because of = () =>
-                result = entryA.Equals(entryB);
-
-            protected static HostEntry entryA;
-            protected static HostEntry entryB;
-            protected static bool result;
+            Assert.True(result);
         }
 
-        [Subject(typeof(HostEntry), "IsIgnoredHostname")]
-        class When_checking_if_an_ignored_hostname_is_ignored
+        [Fact]
+        public void Other_hostnames_are_not_ignored()
         {
-            Because of = () =>
-                result = HostEntry.IsIgnoredHostname("rhino.acme.com");
+            var result = HostEntry.IsIgnoredHostname("www.google.com");
 
-            It should_be_ignored = () =>
-                result.ShouldBeTrue();
-
-            static bool result;
-        }
-
-        [Subject(typeof(HostEntry), "IsIgnoredHostname")]
-        class When_checking_if_a_regular_hostname_is_ignored
-        {
-            Because of = () =>
-                result = HostEntry.IsIgnoredHostname("www.google.com");
-
-            It should_not_be_ignored = () =>
-                result.ShouldBeFalse();
-
-            static bool result;
+            Assert.False(result);
         }
     }
 }

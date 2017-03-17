@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -37,7 +38,7 @@ namespace RichardSzalay.Hosts
 
         }
 
-        internal HostsFile(IResource resource)
+        public HostsFile(IResource resource)
         {
             this.resource = resource;
 
@@ -194,8 +195,7 @@ namespace RichardSzalay.Hosts
             string spacer = match.Groups["Spacer"].Value;
             string hostname = match.Groups["Hostname"].Value;
 
-            IPAddress tempAddress;
-            if (!IPAddress.TryParse(address, out tempAddress))
+            if (!IPAddress.TryParse(address, out IPAddress tempAddress))
             {
                 return null;
             }
@@ -232,23 +232,22 @@ namespace RichardSzalay.Hosts
         {
             get
             {
-                // Technically http://stackoverflow.com/a/5117005/3603
-                // but I'm not really going for .NET 1.0/1.1 support here
-
-                switch(Environment.OSVersion.Platform)
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    case PlatformID.Unix:
-                        return "/etc/hosts";
-                    case PlatformID.MacOSX:
-                        return "/private/etc/hsots";
-                    case PlatformID.Win32NT:
-                    case PlatformID.Win32S:
-                    case PlatformID.Win32Windows:
-                    case PlatformID.WinCE:
-                        return @"%windir%\system32\drivers\etc\hosts";
-                    default:
-                        throw new NotSupportedException("Unable to detect hosts location for platform: " + Environment.OSVersion.Platform);
+                    return @"%windir%\system32\drivers\etc\hosts";
                 }
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    return "/private/etc/hsots";
+                }
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    return "/etc/hosts";
+                }
+
+                throw new NotSupportedException("Unable to detect hosts location for platform: " + RuntimeInformation.OSDescription);
             }
         }
     }

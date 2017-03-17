@@ -42,7 +42,7 @@ namespace RichardSzalay.Hosts.Powershell
             }
             else
             {
-                hostEntries = hostsFile.Entries.Where(e => String.Equals(e.Name, name, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                hostEntries = hostsFile.Entries.Where(e => String.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase)).ToList();
 
                 if (hostEntries.Count == 0)
                 {

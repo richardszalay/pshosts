@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RichardSzalay.Hosts
 {
-    public class HostEntry : IEquatable<HostEntry>, ICloneable
+    public class HostEntry : IEquatable<HostEntry> //, ICloneable
     {
         private const string CommentPrefix = "# ";
 
@@ -37,6 +37,11 @@ namespace RichardSzalay.Hosts
             this.hostname = hostname;
             this.address = address;
             this.comment = comment;
+        }
+
+        public static HostEntry FromFileEntry(int line, string originalLine, string spacer, bool enabled, string hostname, string address, string comment)
+        {
+            return new HostEntry(line, originalLine, spacer, enabled, hostname, address, comment);
         }
 
         public int Line
@@ -172,9 +177,7 @@ namespace RichardSzalay.Hosts
 
         public override bool Equals(object obj)
         {
-            HostEntry other = obj as HostEntry;
-
-            if (other != null)
+            if (obj is HostEntry other)
             {
                 return Equals(other);
             }
@@ -207,10 +210,11 @@ namespace RichardSzalay.Hosts
                 enabled, hostname, address, comment
                 );
         }
-
+        /*
         object ICloneable.Clone()
         {
             return this.Clone();
         }
+        */
     }
 }

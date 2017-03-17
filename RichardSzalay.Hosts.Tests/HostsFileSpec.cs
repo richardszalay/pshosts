@@ -1,333 +1,235 @@
 ﻿using Machine.Specifications;
 using RichardSzalay.Hosts.Tests.Infrastructure;
-using RichardSzalay.Hosts.Tests.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xunit;
 
 namespace RichardSzalay.Hosts.Tests
 {
-    class HostsFileSpec
+    public class HostsFileSpec
     {
-        class StringHostsFileContext
+        [Fact]
+        public void Parsed_basic_hosts_file_has_expected_entries()
         {
-            Because of = () =>
-                result = new HostsFile(new StringResource(hostsFileContent));
+            var hostsFileContent = "127.0.0.1    host1 # comment 1\n192.168.0.1    host2";
+            var result = new HostsFile(new StringResource(hostsFileContent));
 
-            protected static string hostsFileContent;
-            protected static HostsFile result;
-        }
-
-        [Subject(typeof(HostsFile))]
-        class When_parsing_a_basic_hosts_file : StringHostsFileContext
-        {
-            Establish context = () =>
+            var expectedEntries = new HostEntry[]
             {
-                hostsFileContent = "127.0.0.1    host1 # comment 1\n192.168.0.1    host2";
-
-                expectedEntries = new HostEntry[]
-                {
-                    new HostEntry(0, "127.0.0.1    host1 # comment 1", "    ", true, "host1", "127.0.0.1", "comment 1"),
-                    new HostEntry(1, "192.168.0.1    host2", "    ", true, "host2", "192.168.0.1", null),
-                };
+                HostEntry.FromFileEntry(0, "127.0.0.1    host1 # comment 1", "    ", true, "host1", "127.0.0.1", "comment 1"),
+                HostEntry.FromFileEntry(1, "192.168.0.1    host2", "    ", true, "host2", "192.168.0.1", null),
             };
 
-            It should_parse_individual_host_entries = () =>
-                result.Entries.ShouldEqual(expectedEntries);
-
-            It should_not_be_in_a_dirty_state = () =>
-                result.IsDirty.ShouldBeFalse();
-
-            static HostEntry[] expectedEntries;
+            Assert.Equal(expectedEntries, result.Entries);
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_parsing_a_host_name_with_a_hyphen : StringHostsFileContext
+        [Fact]
+        public void Parsed_basic_hosts_file_is_not_in_dirty_state()
         {
-            Establish context = () =>
-            {
-                hostsFileContent = "127.0.0.1    host1-localhost # comment 1";
+            var hostsFileContent = "127.0.0.1    host1 # comment 1\n192.168.0.1    host2";
+            var result = new HostsFile(new StringResource(hostsFileContent));
 
-                expectedEntries = new HostEntry[]
-                {
-                    new HostEntry(0, "127.0.0.1    host1-localhost # comment 1", "    ", true, "host1-localhost", "127.0.0.1", "comment 1"),
-                };
+            var expectedEntries = new HostEntry[]
+            {
+                HostEntry.FromFileEntry(0, "127.0.0.1    host1 # comment 1", "    ", true, "host1", "127.0.0.1", "comment 1"),
+                HostEntry.FromFileEntry(1, "192.168.0.1    host2", "    ", true, "host2", "192.168.0.1", null),
             };
 
-            It should_parse_correctly = () =>
-                result.Entries.ShouldEqual(expectedEntries);
-
-            static HostEntry[] expectedEntries;
+            Assert.False(result.IsDirty);
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_parsing_a_hosts_file_that_contains_the_system_samples : StringHostsFileContext
+        [Fact]
+        public void Host_entries_containing_hyphens_are_supported()
         {
-            Establish context = () =>
-            {
-                hostsFileContent = Resources.DefaultHostsFile;
+            var hostsFileContent = "127.0.0.1    host1-localhost # comment 1";
+            var result = new HostsFile(new StringResource(hostsFileContent));
 
-                expectedEntries = new HostEntry[]
-                {
-                };
+            var expectedEntries = new HostEntry[]
+            {
+                    HostEntry.FromFileEntry(0, "127.0.0.1    host1-localhost # comment 1", "    ", true, "host1-localhost", "127.0.0.1", "comment 1"),
             };
 
-            It should_ignore_the_sample_hostnames = () =>
-                result.Entries.ShouldEqual(expectedEntries);
-
-            static HostEntry[] expectedEntries;
+            Assert.Equal(expectedEntries, result.Entries);
         }
 
-        class HostFileChangesContext
+        [Fact]
+        public void Built_in_sample_hosts_are_ignored()
         {
-            Because of = () =>
+            var hostsFileContent = Resources.DefaultHostsFile;
+            var result = new HostsFile(new StringResource(hostsFileContent));
+
+            var expectedEntries = new HostEntry[]
             {
-                StringResource stringResource = new StringResource(hostsFileContent);
-
-                var hostsFile = new HostsFile(stringResource);
-
-                changeAction(hostsFile);
-
-                hostsFile.Save();
-
-                result = stringResource.ToString();
             };
 
-            protected static string hostsFileContent;
-            protected static Action<HostsFile> changeAction;
-
-            protected static string result;
+            Assert.Equal(expectedEntries, result.Entries);
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_updating_the_hosts_file_by_modifying_enabled_states : HostFileChangesContext
+        private string ModifyHostsFile(string initialContent, Action<HostsFile> changeAction)
         {
-            Establish context = () =>
-            {
-                hostsFileContent = Resources.SampleHostsFile;
+            StringResource stringResource = new StringResource(initialContent);
 
-                changeAction = hostsFile =>
-                {
-                    hostsFile.Entries.First(c => c.Name == "host1.localhost").Enabled = false;
-                    hostsFile.Entries.First(c => c.Name == "host2.localhost").Enabled = true;
-                };
-            };
+            var hostsFile = new HostsFile(stringResource);
 
-            It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Disable);
+            changeAction(hostsFile);
 
-            static HostEntry[] expectedEntries;
+            hostsFile.Save();
+
+            return stringResource.ToString();
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_updating_the_hosts_file_by_swapping_the_lines_of_two_entries : HostFileChangesContext
-        {
-            Establish context = () =>
+        [Fact]
+        public void When_updating_the_hosts_file_by_modifying_enabled_states()
+       {
+            var result = ModifyHostsFile(Resources.SampleHostsFile, hostsFile =>
             {
-                hostsFileContent = Resources.SampleHostsFile;
+                hostsFile.Entries.First(c => c.Name == "host1.localhost").Enabled = false;
+                hostsFile.Entries.First(c => c.Name == "host2.localhost").Enabled = true;
+            });
 
-                changeAction = hostsFile =>
-                {
-                    hostsFile.Entries.First(c => c.Name == "host1.localhost")
+            Assert.Equal(Resources.SampleHostsFile_Disable, result);
+        }
+
+        [Fact]
+        public void When_updating_the_hosts_file_by_swapping_the_lines_of_two_entries()
+        {
+            var result = ModifyHostsFile(Resources.SampleHostsFile, hostsFile =>
+            {
+                hostsFile.Entries.First(c => c.Name == "host1.localhost")
                         .SwapLine(hostsFile.Entries.First(c => c.Name == "host2.localhost"));
-                };
-            };
+            });
 
-            It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Reorder);
-
-            static HostEntry[] expectedEntries;
+            Assert.Equal(Resources.SampleHostsFile_Reorder, result);
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_updating_the_hosts_file_by_deleting_an_entry : HostFileChangesContext
+        [Fact]
+        public void When_updating_the_hosts_file_by_deleting_an_entry()
         {
-            Establish context = () =>
+            var result = ModifyHostsFile(Resources.SampleHostsFile, hostsFile =>
             {
-                hostsFileContent = Resources.SampleHostsFile;
-
-                changeAction = hostsFile =>
-                {
-                    hostsFile.DeleteEntry(
+                hostsFile.DeleteEntry(
                         hostsFile.Entries.First(c => c.Name == "host1.localhost"));
-                };
-            };
+            });
 
-            It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Delete);
-
-            static HostEntry[] expectedEntries;
+            Assert.Equal(Resources.SampleHostsFile_Delete, result);
         }
 
-        [Subject(typeof(HostsFile))]
-        class When_making_numerous_seemingly_conflicting_changes : HostFileChangesContext
+        [Fact]
+        public void When_making_numerous_seemingly_conflicting_changes()
         {
-            Establish context = () =>
+            var result = ModifyHostsFile(Resources.ComplexHostsFile_Before, hostsFile =>
             {
-                hostsFileContent = Resources.ComplexHostsFile_Before;
+                var entry1 = hostsFile.Entries.First(c => c.Name == "host1.localhost");
+                var entry2 = hostsFile.Entries.First(c => c.Name == "host2.localhost");
+                var entry3 = hostsFile.Entries.First(c => c.Name == "host3.localhost");
+                var entry4 = hostsFile.Entries.First(c => c.Name == "host4.localhost");
+                var entry5 = hostsFile.Entries.First(c => c.Name == "host5.localhost");
+                var entry6 = new HostEntry("host6.localhost", "127.0.0.1", "comment 6");
 
-                changeAction = hostsFile =>
-                {
-                    var entry1 = hostsFile.Entries.Where(c => c.Name == "host1.localhost").First();
-                    var entry2 = hostsFile.Entries.Where(c => c.Name == "host2.localhost").First();
-                    var entry3 = hostsFile.Entries.Where(c => c.Name == "host3.localhost").First();
-                    var entry4 = hostsFile.Entries.Where(c => c.Name == "host4.localhost").First();
-                    var entry5 = hostsFile.Entries.Where(c => c.Name == "host5.localhost").First();
-                    var entry6 = new HostEntry("host6.localhost", "127.0.0.1", "comment 6");
+                entry1.Enabled = false;
+                entry2.Enabled = true;
+                entry3.Enabled = false;
 
-                    entry1.Enabled = false;
-                    entry2.Enabled = true;
-                    entry3.Enabled = false;
+                entry3.SwapLine(entry5); // swap two with a deleted in between
+                entry6.SwapLine(entry2); // new swapped with existing
 
-                    entry3.SwapLine(entry5); // swap two with a deleted in between
-                    entry6.SwapLine(entry2); // new swapped with existing
+                hostsFile.DeleteEntry(entry4);
+                hostsFile.AddEntry(entry6);
+            });
 
-                    hostsFile.DeleteEntry(entry4);
-                    hostsFile.AddEntry(entry6);
-                };
-            };
-
-            It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.ComplexHostsFile_Expected);
-
-            static HostEntry[] expectedEntries;
+            Assert.Equal(Resources.ComplexHostsFile_Expected, result);
         }
 
-        [Subject(typeof(HostsFile), "AddEntry")]
-        class When_adding_an_entry
+        [Fact]
+        public void Adding_an_entry_includes_it_in_the_list()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource());
+            var sut = new HostsFile(new StringResource());
 
-                newEntry = new HostEntry("host.localhost", "1.0.0.0", null);
-            };
+            var newEntry = new HostEntry("host.localhost", "1.0.0.0", null);
 
-            Because of = () =>
-                sut.AddEntry(newEntry);
+            sut.AddEntry(newEntry);
 
-            It should_contain_the_new_entry = () =>
-                sut.Entries.ShouldContain(newEntry);
-
-            It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
-
-            static HostsFile sut;
-            static HostEntry newEntry;
+            Assert.Contains(newEntry, sut.Entries);
         }
 
-        [Subject(typeof(HostsFile), "AddEntry")]
-        class When_adding_a_null_entry
+        [Fact]
+        public void Adding_an_entry_marks_the_file_as_dirty()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource());
-            };
+            var sut = new HostsFile(new StringResource());
 
-            Because of = () =>
-                result = Catch.Exception(() => sut.AddEntry(null));
+            var newEntry = new HostEntry("host.localhost", "1.0.0.0", null);
 
-            It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentNullException>();
+            sut.AddEntry(newEntry);
 
-            static HostsFile sut;
-            static Exception result;
+            Assert.True(sut.IsDirty);
         }
 
-        [Subject(typeof(HostsFile), "AddEntry")]
-        class When_adding_a_entry_that_uses_an_ignored_hostname
+        [Fact]
+        public void Adding_a_null_entry_throws_NullArgumentException()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource());
-                newEntry = new HostEntry("localhost", "1.0.0.0", null);
-            };
+            var sut = new HostsFile(new StringResource());
 
-            Because of = () =>
-                result = Catch.Exception(() => sut.AddEntry(null));
-
-            It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentException>();
-
-            static HostsFile sut;
-            static Exception result;
-            static HostEntry newEntry;
+            Assert.Throws<ArgumentNullException>(() => sut.AddEntry(null));
         }
 
-        [Subject(typeof(HostsFile), "DeleteEntry")]
-        class When_deleting_an_entry
+        [Fact]
+        public void Adding_an_ignored_hostname_throws_ArgumentException()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource("127.0.0.1    host1 # comment 1\n192.168.0.1    host2"));
-                entryToDelete = sut.Entries.First();
-            };
+            var sut = new HostsFile(new StringResource());
 
-            Because of = () =>
-                sut.DeleteEntry(sut.Entries.First());
+            var newEntry = new HostEntry("localhost", "1.0.0.0", null);
 
-            It should_not_contain_the_new_entry = () =>
-                sut.Entries.ShouldNotContain(entryToDelete);
-
-            It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
-
-            static HostsFile sut;
-            static HostEntry entryToDelete;
+            Assert.Throws<ArgumentException>(() => sut.AddEntry(newEntry));
         }
 
-        [Subject(typeof(HostsFile), "DeleteEntry")]
-        class When_deleting_an_entry_that_does_not_exist
+        [Fact]
+        public void Deleting_an_entry_removes_it_from_the_list()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource());
-            };
+            var sut = new HostsFile(new StringResource("127.0.0.1    host1 # comment 1\n192.168.0.1    host2"));
+            var entryToDelete = sut.Entries.First();
 
-            Because of = () =>
-                result = Catch.Exception(() => sut.DeleteEntry(new HostEntry("host.localhost", "1.0.0.0", null)));
+            sut.DeleteEntry(sut.Entries.First());
 
-            It should_not_throw_an_exception = () =>
-                result.ShouldBeNull();
-
-            static HostsFile sut;
-            static Exception result;
+            Assert.DoesNotContain(entryToDelete,  sut.Entries);
         }
 
-        [Subject(typeof(HostsFile), "DeleteEntry")]
-        class When_deleting_a_null_entry
+        [Fact]
+        public void Deleting_an_entry_marks_the_file_as_dirty()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource());
-            };
+            var sut = new HostsFile(new StringResource("127.0.0.1    host1 # comment 1\n192.168.0.1    host2"));
+            var entryToDelete = sut.Entries.First();
 
-            Because of = () =>
-                result = Catch.Exception(() => sut.DeleteEntry(null));
+            sut.DeleteEntry(sut.Entries.First());
 
-            It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentNullException>();
-
-            static HostsFile sut;
-            static Exception result;
+            Assert.True(sut.IsDirty);
         }
 
-        [Subject(typeof(HostsFile), "IsDirty")]
-        class When_an_entry_has_been_modified
+        [Fact]
+        public void Deleting_an_entry_that_does_not_exist_does_not_throw_exception()
         {
-            Establish context = () =>
-            {
-                sut = new HostsFile(new StringResource("127.0.0.1    host1 # comment 1\n192.168.0.1    host2"));
-            };
+            var sut = new HostsFile(new StringResource());
 
-            Because of = () =>
-                sut.Entries.First().Enabled = false;
+            sut.DeleteEntry(new HostEntry("host.localhost", "1.0.0.0", null));
+        }
 
-            It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
+        [Fact]
+        public void Deleting_a_null_entry_throws_NullArgumentException()
+        {
+            var sut = new HostsFile(new StringResource());
 
-            static HostsFile sut;
+            Assert.Throws<ArgumentNullException>(() => sut.DeleteEntry(null));
+        }
+
+        [Fact]
+        public void Modifying_an_entry_marks_the_file_as_dirty()
+        {
+            var sut = new HostsFile(new StringResource("127.0.0.1    host1 # comment 1\n192.168.0.1    host2"));
+
+            sut.Entries.First().Enabled = false;
+
+            Assert.True(sut.IsDirty);
         }
     }
 }
