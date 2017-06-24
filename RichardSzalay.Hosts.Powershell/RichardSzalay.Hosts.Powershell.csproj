@@ -35,9 +35,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\v1.0\System.Management.Automation.dll</HintPath>
+    <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Management.Automation.6.1.7601.17515\lib\net40\System.Management.Automation.dll</HintPath>
+      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +60,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="PsHosts.format.ps1xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -79,18 +81,13 @@
   -->
   <Import Project="Zip.tasks" />
   <Target Name="PackagePsGetArchive" AfterTargets="Build" Condition="'$(PackagePsGetArchive)'=='true'">
-	<ItemGroup>
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.psd1" />
-		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.HostEntry.dll" />
-		<PsGetPackageFiles Include="$(OutputPath)RichardSzalay.Hosts.Powershell.dll" />
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.ParameterCompletion.psm1" />
-		<PsGetPackageFiles Include="$(OutputPath)PsHosts.format.ps1xml" />
-	</ItemGroup>
-	
-	<Zip
-		InputFileNames="@(PsGetPackageFiles)"
-		OutputFileName="$(OutputPath)PsHosts.zip"
-		OverwriteExistingFile="true" />
+    <ItemGroup>
+      <PsGetPackageFiles Include="$(OutputPath)PsHosts.psd1" />
+      <PsGetPackageFiles Include="$(OutputPath)RichardSzalay.HostEntry.dll" />
+      <PsGetPackageFiles Include="$(OutputPath)RichardSzalay.Hosts.Powershell.dll" />
+      <PsGetPackageFiles Include="$(OutputPath)PsHosts.ParameterCompletion.psm1" />
+      <PsGetPackageFiles Include="$(OutputPath)PsHosts.format.ps1xml" />
+    </ItemGroup>
+    <Zip InputFileNames="@(PsGetPackageFiles)" OutputFileName="$(OutputPath)PsHosts.zip" OverwriteExistingFile="true" />
   </Target>
-  
 </Project>
