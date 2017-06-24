@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace RichardSzalay.Hosts
@@ -20,6 +21,7 @@ namespace RichardSzalay.Hosts
         private bool enabled;
         private string hostname;
         private string address;
+        private IPAddress ipAddress;
         private string comment;
 
         public HostEntry(string hostname, string address, string comment)
@@ -36,6 +38,7 @@ namespace RichardSzalay.Hosts
             this.enabled = enabled;
             this.hostname = hostname;
             this.address = address;
+            this.ipAddress = SafeParseIPAddress(address);
             this.comment = comment;
         }
 
@@ -74,8 +77,20 @@ namespace RichardSzalay.Hosts
                 {
                     address = value;
                     isDirty = true;
+
+                    ipAddress = SafeParseIPAddress(address);
                 }
             }
+        }
+
+        public IPAddress IPAddress
+        {
+            get { return ipAddress; }
+        }
+
+        public bool IsLoopback
+        {
+            get { return ipAddress != null && IPAddress.IsLoopback(ipAddress); }
         }
 
         public string Comment
@@ -199,6 +214,22 @@ namespace RichardSzalay.Hosts
         {
             "rhino.acme.com", "x.acme.com", "localhost"
         };
+
+        private static IPAddress SafeParseIPAddress(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+            {
+                return null;
+            }
+
+            IPAddress ipAddress;
+            if (!IPAddress.TryParse(address, out ipAddress))
+            {
+                return null;
+            }
+
+            return ipAddress;
+        }
 
         public HostEntry Clone()
         {

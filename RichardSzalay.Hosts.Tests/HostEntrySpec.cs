@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace RichardSzalay.Hosts.Tests
@@ -420,6 +421,117 @@ namespace RichardSzalay.Hosts.Tests
                 result.ShouldBeFalse();
 
             static bool result;
+        }
+
+        [Subject(typeof(HostEntry), "IPAddress")]
+        class When_address_is_valid_ipv4_address
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "10.10.10.10", null);
+
+            It should_return_an_IPAddress_object = () =>
+                result.IPAddress.ShouldEqual(IPAddress.Parse("10.10.10.10"));
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IPAddress")]
+        class When_address_is_valid_ipv6_address
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "2001:db8::ff00:42:8329", null);
+
+            It should_return_an_IPAddress_object = () =>
+                result.IPAddress.ShouldEqual(IPAddress.Parse("2001:db8::ff00:42:8329"));
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IPAddress")]
+        class When_address_is_an_invalid_ip_address
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "abc.efg.hij.klm", null);
+
+            It should_return_an_IPAddress_object = () =>
+                result.IPAddress.ShouldBeNull();
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IPAddress")]
+        class When_address_is_null
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", null, null);
+
+            It should_return_an_IPAddress_object = () =>
+                result.IPAddress.ShouldBeNull();
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IPAddress")]
+        class When_address_is_changed
+        {
+            Establish context = () =>
+                sut = new HostEntry("tempuri.org", null, null);
+
+            Because of = () =>
+                sut.Address = "10.10.10.10";
+
+            It should_recalculate_IPAddress = () =>
+                sut.IPAddress.ShouldEqual(IPAddress.Parse("10.10.10.10"));
+
+            static HostEntry sut;
+        }
+
+        [Subject(typeof(HostEntry), "IsLoopback")]
+        class When_address_is_ipv4_loopback
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "127.0.0.1", null);
+
+            It should_be_true = () =>
+                result.IsLoopback.ShouldBeTrue();
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IsLoopback")]
+        class When_address_is_ipv6_loopback
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "::1", null);
+
+            It should_be_true = () =>
+                result.IsLoopback.ShouldBeTrue();
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IsLoopback")]
+        class When_address_is_not_loopback
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "10.10.10.10", null);
+
+            It should_be_true = () =>
+                result.IsLoopback.ShouldBeFalse();
+
+            static HostEntry result;
+        }
+
+        [Subject(typeof(HostEntry), "IsLoopback")]
+        class When_address_is_not_valid_ipaddress
+        {
+            Because of = () =>
+                result = new HostEntry("tempuri.org", "abc.def.hij", null);
+
+            It should_be_true = () =>
+                result.IsLoopback.ShouldBeFalse();
+
+            static HostEntry result;
         }
     }
 }
