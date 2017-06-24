@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileInfoResourceSpec.cs" />
     <Compile Include="HostEntrySpec.cs" />
     <Compile Include="HostsFileSpec.cs" />
     <Compile Include="Infrastructure\StringResource.cs" />
