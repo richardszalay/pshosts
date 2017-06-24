@@ -18,8 +18,14 @@ namespace RichardSzalay.Hosts.Powershell
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string Name { get; set; }
 
-        [Parameter(Mandatory = true, Position = 1)]
+        [Parameter(Mandatory = true, Position = 1, ParameterSetName = "SpecificAddress")]
         public string Address { get; set; }
+
+        [Parameter(ParameterSetName = "IPv4LoopbackAddress")]
+        public SwitchParameter Loopback { get; set; }
+
+        [Parameter(ParameterSetName = "IPv6LoopbackAddress")]
+        public SwitchParameter IPv6Loopback { get; set; }
 
         [Parameter(Position = 2)]
         public string Comment { get; set; }
@@ -42,9 +48,9 @@ namespace RichardSzalay.Hosts.Powershell
 
         protected override void ProcessRecord()
         {
-            ValidateAddress(Address);
+            string address = ValidateAddress();
 
-            var newEntry = new HostEntry(Name, Address, Comment)
+            var newEntry = new HostEntry(Name, address, Comment)
             {
                 Enabled = Enabled
             };
@@ -66,15 +72,28 @@ namespace RichardSzalay.Hosts.Powershell
             }
         }
 
-        void ValidateAddress(string address)
+        string ValidateAddress()
         {
+            if (this.MyInvocation.BoundParameters.ContainsKey("Loopback") && Loopback.IsPresent)
+            {
+                return IPAddress.Loopback.ToString();
+            }
+
+            if (this.MyInvocation.BoundParameters.ContainsKey("IPv6Loopback") && IPv6Loopback.IsPresent)
+            {
+                return IPAddress.IPv6Loopback.ToString();
+            }
+
             IPAddress ipAddress;
 
-            if (!IPAddress.TryParse(address, out ipAddress))
+            if (!IPAddress.TryParse(Address, out ipAddress))
             {
-                WriteWarning(String.Format("'{0}' is not a valid IP address", address));
+                WriteWarning(String.Format("'{0}' is not a valid IP address", Address));
             }
+
+            return Address;
         }
+
         private bool HostEntryExists(IEnumerable<HostEntry> entries, string name)
         {
             return entries.Any(e => String.Equals(e.Name, name, StringComparison.InvariantCultureIgnoreCase));
