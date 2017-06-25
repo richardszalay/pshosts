@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddHostEntryCommand.cs" />
+    <Compile Include="TestHostEntryCommand.cs" />
     <Compile Include="DisableHostEntryCommand.cs" />
     <Compile Include="EnableHostEntryCommand.cs" />
     <Compile Include="SetHostEntryCommand.cs" />

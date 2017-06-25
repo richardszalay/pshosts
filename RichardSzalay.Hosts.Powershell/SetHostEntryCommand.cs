@@ -33,11 +33,9 @@ namespace RichardSzalay.Hosts.Powershell
 
         protected override void ProcessRecord()
         {
-            var hostsFile = GetHostsFile();
-
             ICollection<HostEntry> hostEntries;
 
-            if (!TryGetHostEntries(HostsFile, Name, Line, out hostEntries))
+            if (!TryGetHostEntries(HostsFile, Name, Line, true, out hostEntries))
             {
                 return;
             }

@@ -6,8 +6,8 @@ using System.Text;
 
 namespace RichardSzalay.Hosts.Powershell
 {
-    [Cmdlet(VerbsCommon.Get, Nouns.HostEntry)]
-    public class GetHostEntryCommand : HostEntryCommandBase
+    [Cmdlet("Test", Nouns.HostEntry)]
+    public class TestHostEntryCommand : HostEntryCommandBase
     {
         [Parameter(Position = 0)]
         public string Name { get; set; }
@@ -15,14 +15,9 @@ namespace RichardSzalay.Hosts.Powershell
         protected override void ProcessRecord()
         {
             ICollection<HostEntry> hostEntries;
+            bool hasEntries = TryGetHostEntries(GetHostsFile(), Name, -1, false, out hostEntries);
 
-            if (TryGetHostEntries(GetHostsFile(), Name, -1, true, out hostEntries))
-            {
-                foreach (var entry in hostEntries)
-                {
-                    WriteObject(entry);
-                }
-            }
+            WriteObject(hasEntries);
 
             base.ProcessRecord();
         }

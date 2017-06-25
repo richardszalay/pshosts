@@ -18,7 +18,7 @@ namespace RichardSzalay.Hosts.Powershell
                 : new HostsFile(HostsPath);
         }
 
-        protected bool TryGetHostEntries(HostsFile hostsFile, string name, int line, out ICollection<HostEntry> hostEntries)
+        protected bool TryGetHostEntries(HostsFile hostsFile, string name, int line, bool requireMatch, out ICollection<HostEntry> hostEntries)
         {
             hostEntries = hostsFile.Entries.ToList();
 
@@ -38,7 +38,7 @@ namespace RichardSzalay.Hosts.Powershell
             {
                 var pattern = new WildcardPattern(name, WildcardOptions.CultureInvariant | WildcardOptions.IgnoreCase);
                 hostEntries = hostsFile.Entries.Where(e => pattern.IsMatch(e.Name)).ToList();
-                return true;
+                return hostEntries.Count > 0;
             }
             else
             {
@@ -46,8 +46,11 @@ namespace RichardSzalay.Hosts.Powershell
 
                 if (hostEntries.Count == 0)
                 {
-                    WriteError(new ErrorRecord(new ItemNotFoundException(String.Format("Host entry '{0}' not found", name)),
-                        "ItemNotFound", ErrorCategory.ObjectNotFound, name));
+                    if (requireMatch)
+                    {
+                        WriteError(new ErrorRecord(new ItemNotFoundException(String.Format("Host entry '{0}' not found", name)),
+                            "ItemNotFound", ErrorCategory.ObjectNotFound, name));
+                    }
                     return false;
                 }
 

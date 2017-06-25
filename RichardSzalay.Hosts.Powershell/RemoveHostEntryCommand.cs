@@ -19,7 +19,7 @@ namespace RichardSzalay.Hosts.Powershell
         {
             ICollection<HostEntry> hostEntries;
 
-            if (!TryGetHostEntries(HostsFile, Name, Line, out hostEntries))
+            if (!TryGetHostEntries(HostsFile, Name, Line, true, out hostEntries))
             {
                 return;
             }
