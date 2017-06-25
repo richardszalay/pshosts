@@ -6,7 +6,7 @@ Import-Module "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\Debug\PsHosts
 $hostsFile = [System.IO.Path]::GetTempFileName()
 Describe "Get-HostEntry" {
     AfterEach {
-        Remove-Item $hostsFile
+        Set-Content $hostsFile ""
     }
 
     Context "Without arguments when there are entries" {
@@ -15,6 +15,16 @@ Describe "Get-HostEntry" {
 
         It "returns all entries" {
             $results.length | Should Be 2
+        }
+    }
+
+    Context "Without arguments when an entry has an invalid IP addresses" {
+        "abc.def.hij hostname`n127.0.0.1 hostname2" > $hostsFile
+        $results = Get-TestHostEntry -HostsPath $hostsFile
+
+        # TODO: This is actually at ends with "Add-HostEntry Supplying an invalid address Adds the entry anyway"
+        It "excludes entries with invalid IP addresses" {
+            $results.length | Should Be 1
         }
     }
 
