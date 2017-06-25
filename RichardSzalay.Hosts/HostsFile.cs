@@ -59,6 +59,9 @@ namespace RichardSzalay.Hosts
                 this.Save(stream);
 
                 stream.Flush();
+
+                stream.Seek(0L, SeekOrigin.Begin);
+                this.Load(stream);
             }
         }
 

@@ -329,5 +329,25 @@ namespace RichardSzalay.Hosts.Tests
 
             static HostsFile sut;
         }
+
+        [Subject(typeof(HostsFile), "IsDirty")]
+        class When_saving_changes
+        {
+            Establish context = () =>
+            {
+                sut = new HostsFile(new StringResource());
+
+                sut.AddEntry(new HostEntry("host.localhost", "1.0.0.0", null));
+            };
+
+            Because of = () =>
+                sut.Save();
+
+            It should_no_longer_be_in_a_dirty_state = () =>
+                sut.IsDirty.ShouldBeFalse();
+
+            static HostsFile sut;
+            static HostEntry newEntry;
+        }
     }
 }
