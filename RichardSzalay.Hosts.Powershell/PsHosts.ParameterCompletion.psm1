@@ -12,6 +12,7 @@ $global:options['CustomArgumentCompleters']['Set-HostEntry:Name'] = $complete_Ho
 $global:options['CustomArgumentCompleters']['Disable-HostEntry:Name'] = $complete_HostName
 $global:options['CustomArgumentCompleters']['Enable-HostEntry:Name'] = $complete_HostName
 $global:options['CustomArgumentCompleters']['Remove-HostEntry:Name'] = $complete_HostName
+$global:options['CustomArgumentCompleters']['Test-HostEntry:Name'] = $complete_HostName
 
 # Default expansion uses local $options, so we need to inject in the merging of our global options
 # Hacky, but apparently the only way
