@@ -42,6 +42,9 @@ Get-HostEntry
 Get-HostEntry *.local
 Get-HostEntry mysite.local
 
+# Test if an entry exists
+Test-HostEntry mysite.local
+
 # Add an entry
 Add-HostEntry mysite.local 127.0.0.1
 
@@ -69,3 +72,19 @@ Remove-HostEntry *.local
 # Disable all loopback entries
 Get-HostEntry | ?{$_.Address -eq "127.0.0.1"} | Disable-HostEntry
 ```
+
+## Development
+
+PsHosts uses [psake](https://github.com/psake/psake) for build automation. Tests can be run by running the following from the root of the repository:
+
+```
+Import-Module .\build\psake\psake.psd1
+Invoke-psake .\build\default.ps1
+```
+
+The solution is made up of a number of projects:
+
+* RichardSzalay.Hosts - .NET Library containing core API for manipulating the hosts file
+* RichardSzalay.Hosts.Tests - Unit tests for core API using [Machine.Specifications](https://github.com/machine/machine.specifications) (Mspec)
+* RichardSzalay.Hosts.Powershell - PowerShell Cmdlets library (.NET)
+* RichardSzalay.Hosts.Powershell.Tests - [Pester](https://github.com/pester/Pester) tests for the PowerShell Cmdlets

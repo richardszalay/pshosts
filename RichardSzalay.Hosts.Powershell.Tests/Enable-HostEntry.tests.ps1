@@ -1,7 +1,6 @@
 #$hostsFile = $env:temp + "\pshosts_hosts"
 
-# TODO: Should this occur outside the tests so that the tests can be run against any build/instance of the module?
-Import-Module "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\Debug\PsHosts.psd1" -Prefix Test -Force
+& "$PSScriptRoot\ImportModule.ps1"
 
 $hostsFile = [System.IO.Path]::GetTempFileName()
 
