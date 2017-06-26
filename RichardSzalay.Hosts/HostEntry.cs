@@ -131,6 +131,24 @@ namespace RichardSzalay.Hosts
         {
             get { return isDirty || IsNew || String.IsNullOrEmpty(originalLine); }
         }
+        
+        public bool IsLoopback
+        {
+            get
+            {
+                bool result;
+                try
+                {
+                    IPAddress ipAddress = IPAddress.Parse(address);
+                    result = IPAddress.IsLoopback(ipAddress);
+                }
+                catch(Exception)
+                {
+                    result = false;
+                }
+                return result;
+            }
+        }
 
         public bool IsNew
         {
