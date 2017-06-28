@@ -19,6 +19,7 @@ To install manually, download a release and unzip to $home\Documents\WindowsPowe
 The Cmdlets use the noun `HostEntry` and support the following verbs:
 
 * Get
+* Test
 * Add
 * Set
 * Remove
@@ -45,8 +46,11 @@ Get-HostEntry mysite.local
 # Test if an entry exists
 Test-HostEntry mysite.local
 
-# Add an entry
-Add-HostEntry mysite.local 127.0.0.1
+# Add a localhost entry
+Add-HostEntry mysite.local -Loopback
+
+# Add a specific entry
+Add-HostEntry mysite.local 192.168.1.1
 
 # Change an entry's IP address
 Set-HostEntry mysite.local 127.0.0.2
@@ -70,7 +74,7 @@ Remove-HostEntry mysite.local
 Remove-HostEntry *.local
 
 # Disable all loopback entries
-Get-HostEntry | ?{$_.Address -eq "127.0.0.1"} | Disable-HostEntry
+Get-HostEntry | ?{$_.IsLoopback} | Disable-HostEntry
 ```
 
 ## Development
