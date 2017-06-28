@@ -12,7 +12,7 @@
 RootModule = 'RichardSzalay.Hosts.Powershell.dll'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '1.2'
 
 # ID used to uniquely identify this module
 GUID = '665f6cdf-d7c5-4b2b-8b0a-071d6ce7d16f'
@@ -101,7 +101,8 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Fix bug that caused hosts file contents to be cleared in scenarios of high file contention (Fixes #4)
+        ReleaseNotes = '* Added `-Loopback` and `-IPv6Loopback` parameters to Add/Set-HostEntry (#6)
+* Added `IPAddress` and `IsLoopback` properties to HostEntry (#2)
 '
 
         # External dependent modules of this module
