@@ -6,18 +6,36 @@
 	}
 }
 
-if (-not $global:options) { $global:options = @{CustomArgumentCompleters = @{};NativeArgumentCompleters = @{}}}
-$global:options['CustomArgumentCompleters']['Get-HostEntry:Name'] = $complete_HostName
-$global:options['CustomArgumentCompleters']['Set-HostEntry:Name'] = $complete_HostName
-$global:options['CustomArgumentCompleters']['Disable-HostEntry:Name'] = $complete_HostName
-$global:options['CustomArgumentCompleters']['Enable-HostEntry:Name'] = $complete_HostName
-$global:options['CustomArgumentCompleters']['Remove-HostEntry:Name'] = $complete_HostName
-$global:options['CustomArgumentCompleters']['Test-HostEntry:Name'] = $complete_HostName
+$cmdletsToRegister = @(
+	"Get-HostEntry", "Set-HostEntry", "Disable-HostEntry", 
+	"Enable-HostEntry", "Remove-HostEntry", "Test-HostEntry"
+)
 
-# Default expansion uses local $options, so we need to inject in the merging of our global options
-# Hacky, but apparently the only way
-# http://www.powertheshell.com/dynamicargumentcompletion/
-if (-not ([string]$function:TabExpansion2 -like "*`$global:options*"))
+$parameterToComplete = "Name"
+
+$registerCmdlet = Get-Command "Register-ArgumentCompleter" -ErrorAction SilentlyContinue
+
+# Prefer PS5.1 / PSCore cmdlet
+if ($registerCmdlet)
 {
-	$function:tabexpansion2 = $function:tabexpansion2 -replace 'End\r\n{','End { if ($null -ne $options) { $options += $global:options} else {$options = $global:options}'
+	$cmdletsToRegister | ForEach-Object {
+		Register-ArgumentCompleter -CommandName $_ -ParameterName $parameterToComplete -ScriptBlock $complete_HostName
+	}
+}
+else
+{
+	# Hacky fallback, but compatible down to PS3
+	# http://www.powertheshell.com/dynamicargumentcompletion/
+
+	if (-not $global:options) { $global:options = @{CustomArgumentCompleters = @{};NativeArgumentCompleters = @{}}}
+
+	$cmdletsToRegister | ForEach-Object {
+		$key = "$($_):$parameterToComplete"
+		$global:options['CustomArgumentCompleters'][$key] = $complete_HostName
+	}
+
+	if (-not ([string]$function:TabExpansion2 -like "*`$global:options*"))
+	{
+		$function:tabexpansion2 = $function:tabexpansion2 -replace 'End\r\n{','End { if ($null -ne $options) { $options += $global:options} else {$options = $global:options}'
+	}	
 }
