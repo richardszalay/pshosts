@@ -24,7 +24,7 @@ task TestCmdlets -depends Compile {
   powershell.exe -NoProfile -Command {
       param($modulePath, $pattern)
 
-      Import-Module $modulePath -Prefix Test -Force      
+      Import-Module $modulePath -Force      
       Invoke-Pester -Script @{ Path = $pattern }
   } -args "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\$configuration\PsHosts\PsHosts.psd1",$testFilePattern
 }

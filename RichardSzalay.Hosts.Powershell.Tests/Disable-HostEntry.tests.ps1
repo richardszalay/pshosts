@@ -1,8 +1,10 @@
 #$hostsFile = $env:temp + "\pshosts_hosts"
 
 & "$PSScriptRoot\ImportModule.ps1"
+. "$PSScriptRoot\TestUtils.ps1"
 
 $hostsFile = [System.IO.Path]::GetTempFileName()
+$global:PSHostsFilePath = $hostsFile
 
 Describe "Disable-HostEntry" {
     BeforeEach {
@@ -15,7 +17,7 @@ Describe "Disable-HostEntry" {
 
     Context "Supplying a hostname that doesn't exist" {
         BeforeEach {
-            Disable-TestHostEntry -Name "hostname3" -HostsPath $hostsFile -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Disable-HostEntry -Name "hostname3" -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {
@@ -23,7 +25,7 @@ Describe "Disable-HostEntry" {
         }
 
         It "Does not disable anything" {
-            $results = Get-TestHostEntry -HostsPath $hostsFile | Where-Object { -not $_.Enabled }
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
 
             $results.length | Should Be 0
         }
@@ -31,17 +33,17 @@ Describe "Disable-HostEntry" {
 
     Context "Supplying a hostname that exists" {
         BeforeEach {
-            Disable-TestHostEntry -Name "hostname" -HostsPath $hostsFile
+            Disable-HostEntry -Name "hostname"
         }
 
         It "Disables the matching entry" {
-            $result = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $result = Get-HostEntry hostname
 
             $result.Enabled | Should Be $false
         }
 
         It "Does not disable similar entries" {
-            $result = Get-TestHostEntry hostname2 -HostsPath $hostsFile
+            $result = Get-HostEntry hostname2
 
             $result.Enabled | Should Be $true
         }
@@ -49,21 +51,21 @@ Describe "Disable-HostEntry" {
 
     Context "Supplying a wildcard that matches" {
         BeforeEach {
-            Disable-TestHostEntry -Name "hostname*" -HostsPath $hostsFile
+            Disable-HostEntry -Name "hostname*"
         }
 
         It "Disables the matching entries" {
-            $result = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $result = Get-HostEntry hostname
             $result.Enabled | Should Be $false
 
-            $result = Get-TestHostEntry hostname2 -HostsPath $hostsFile
+            $result = Get-HostEntry hostname2
             $result.Enabled | Should Be $false
         }
     }
 
     Context "Supplying a wildcard that doesn't exist" {
         BeforeEach {
-            Disable-TestHostEntry -Name "somethingelse.entirely*" -HostsPath $hostsFile -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Disable-HostEntry -Name "somethingelse.entirely*" -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Does not emit an error" {
@@ -71,9 +73,37 @@ Describe "Disable-HostEntry" {
         }
 
         It "Does not disable anything" {
-            $results = Get-TestHostEntry -HostsPath $hostsFile | Where-Object { -not $_.Enabled }
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
 
             $results.length | Should Be 0
         }
     }
 }
+
+Describe "Disable-HostEntry Tab completion" {
+    
+    Add-HostEntry -Name "cat.local" -Loopback | Out-Null
+    Add-HostEntry -Name "car.local" -Loopback | Out-Null
+    
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+            @{CompletionText = "car.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Disable-HostEntry "
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Disable-HostEntry cat"
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @()
+        TestInput = "Disable-HostEntry caz"
+    } | Get-CompletionTestCaseData | Test-Completions
+}
+
+Remove-Item $hostsFile

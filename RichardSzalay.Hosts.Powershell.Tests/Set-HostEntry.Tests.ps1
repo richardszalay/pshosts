@@ -1,8 +1,10 @@
 #$hostsFile = $env:temp + "\pshosts_hosts"
 
 & "$PSScriptRoot\ImportModule.ps1"
+. "$PSScriptRoot\TestUtils.ps1"
 
 $hostsFile = [System.IO.Path]::GetTempFileName()
+$global:PSHostsFilePath = $hostsFile
 
 Describe "Set-HostEntry" {
     BeforeEach {
@@ -15,7 +17,7 @@ Describe "Set-HostEntry" {
 
     Context "Supplying a hostname that doesn't already exist" {
         BeforeEach {
-            Set-TestHostEntry -Name "hostname3" -Address "10.10.10.10" -HostsPath $hostsFile -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {
@@ -23,7 +25,7 @@ Describe "Set-HostEntry" {
         }
 
         It "Does not add the entry" {
-            $results = Get-TestHostEntry -HostsPath $hostsFile
+            $results = Get-HostEntry
 
             $results.length | Should Be 2
         }
@@ -31,11 +33,11 @@ Describe "Set-HostEntry" {
 
     Context "Supplying address" {
         BeforeEach {
-            Set-TestHostEntry -Name "hostname" -Address "10.10.10.10" -HostsPath $hostsFile
+            Set-HostEntry -Name "hostname" -Address "10.10.10.10"
         }
 
         It "Sets entry address as specified" {
-            $results = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $results = Get-HostEntry hostname
 
             $results.length | Should Be 1
             $results[0].Name | Should Be "hostname"
@@ -45,11 +47,11 @@ Describe "Set-HostEntry" {
 
     Context "Supplying Loopback" {
         BeforeEach {
-            Set-TestHostEntry -Name "hostname" -Loopback -HostsPath $hostsFile
+            Set-HostEntry -Name "hostname" -Loopback
         }
 
         It "Set entry address to 127.0.0.1" {
-            $results = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $results = Get-HostEntry hostname
 
             $results[0].Address | Should Be "127.0.0.1"
         }
@@ -57,11 +59,11 @@ Describe "Set-HostEntry" {
 
     Context "Supplying IPv6Loopback" {
         BeforeEach {
-            Set-TestHostEntry -Name "hostname" -IPv6Loopback -HostsPath $hostsFile
+            Set-HostEntry -Name "hostname" -IPv6Loopback
         }
 
         It "Sets entry address to ::1" {
-            $results = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $results = Get-HostEntry hostname
 
             $results[0].Address | Should Be "::1"
         }
@@ -69,25 +71,25 @@ Describe "Set-HostEntry" {
 
     Context "Supplying Loopback and Address" {
         It "Throws an error" {
-            { Set-TestHostEntry -Name "hostname" -Address "127.0.0.1" -Loopback -HostsPath $hostsFile } | Should Throw
+            { Set-HostEntry -Name "hostname" -Address "127.0.0.1" -Loopback } | Should Throw
         }
     }
 
     Context "Supplying IPv6Loopback and Address" {
         It "Throws an error" {
-            { Set-TestHostEntry -Name "hostname" -Address "127.0.0.1" -IPv6Loopback -HostsPath $hostsFile } | Should Throw
+            { Set-HostEntry -Name "hostname" -Address "127.0.0.1" -IPv6Loopback } | Should Throw
         }
     }
 
     Context "Supplying Loopback and IPv6Loopback" {
         It "Throws an error" {
-            { Set-TestHostEntry -Name "hostname" -Loopback -IPv6Loopback -HostsPath $hostsFile } | Should Throw
+            { Set-HostEntry -Name "hostname" -Loopback -IPv6Loopback } | Should Throw
         }
     }
 
     Context "Supplying an invalid address" {
         BeforeEach {
-            Set-TestHostEntry -Name "hostname" -Address "abc.def.hij" -HostsPath $hostsFile -WarningVariable warn 2>&1 3>&1 | Out-Null
+            Set-HostEntry -Name "hostname" -Address "abc.def.hij" -WarningVariable warn 2>&1 3>&1 | Out-Null
         }
 
         It "Emits a warning" {
@@ -101,3 +103,31 @@ Describe "Set-HostEntry" {
         }
     }
 }
+
+Describe "Set-HostEntry Tab completion" {
+    
+    Add-HostEntry -Name "cat.local" -Loopback | Out-Null
+    Add-HostEntry -Name "car.local" -Loopback | Out-Null
+    
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+            @{CompletionText = "car.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Set-HostEntry "
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Set-HostEntry cat"
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @()
+        TestInput = "Set-HostEntry caz"
+    } | Get-CompletionTestCaseData | Test-Completions
+}
+
+Remove-Item $hostsFile

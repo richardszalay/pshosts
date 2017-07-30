@@ -1,8 +1,10 @@
 #$hostsFile = $env:temp + "\pshosts_hosts"
 
 & "$PSScriptRoot\ImportModule.ps1"
+. "$PSScriptRoot\TestUtils.ps1"
 
 $hostsFile = [System.IO.Path]::GetTempFileName()
+$global:PSHostsFilePath = $hostsFile
 
 Describe "Enable-HostEntry" {
     BeforeEach {
@@ -15,7 +17,7 @@ Describe "Enable-HostEntry" {
 
     Context "Supplying a hostname that doesn't exist" {
         BeforeEach {
-            Enable-TestHostEntry -Name "hostname3" -HostsPath $hostsFile -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Enable-HostEntry -Name "hostname3" -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {
@@ -23,7 +25,7 @@ Describe "Enable-HostEntry" {
         }
 
         It "Does not enable anything" {
-            $results = Get-TestHostEntry -HostsPath $hostsFile | Where-Object { -not $_.Enabled }
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
 
             $results.length | Should Be 1
         }
@@ -31,11 +33,11 @@ Describe "Enable-HostEntry" {
 
     Context "Supplying a hostname that exists" {
         BeforeEach {
-            Enable-TestHostEntry -Name "hostname" -HostsPath $hostsFile
+            Enable-HostEntry -Name "hostname"
         }
 
         It "Enables the matching entry" {
-            $result = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $result = Get-HostEntry hostname
 
             $result.Enabled | Should Be $true
         }
@@ -43,11 +45,11 @@ Describe "Enable-HostEntry" {
 
     Context "Supplying a wildcard that matches" {
         BeforeEach {
-            Enable-TestHostEntry -Name "hostname*" -HostsPath $hostsFile
+            Enable-HostEntry -Name "hostname*"
         }
 
         It "Enabled the matching entries" {
-            $result = Get-TestHostEntry hostname -HostsPath $hostsFile
+            $result = Get-HostEntry hostname
 
             $result.Enabled | Should Be $true
         }
@@ -55,7 +57,7 @@ Describe "Enable-HostEntry" {
 
     Context "Supplying a wildcard that doesn't exist" {
         BeforeEach {
-            Enable-TestHostEntry -Name "somethingelse.entirely*" -HostsPath $hostsFile -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Enable-HostEntry -Name "somethingelse.entirely*" -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Does not emit an error" {
@@ -63,9 +65,37 @@ Describe "Enable-HostEntry" {
         }
 
         It "Does not enable anything" {
-            $results = Get-TestHostEntry -HostsPath $hostsFile | Where-Object { -not $_.Enabled }
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
 
             $results.length | Should Be 1
         }
     }
 }
+
+Describe "Enable-HostEntry Tab completion" {
+    
+    Add-HostEntry -Name "cat.local" -Loopback | Out-Null
+    Add-HostEntry -Name "car.local" -Loopback | Out-Null
+    
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+            @{CompletionText = "car.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Enable-HostEntry "
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @(
+            @{CompletionText = "cat.local"; ResultType = "ParameterValue"}
+        )
+        TestInput = "Enable-HostEntry cat"
+    } | Get-CompletionTestCaseData | Test-Completions
+
+    @{
+        ExpectedResults = @()
+        TestInput = "Enable-HostEntry caz"
+    } | Get-CompletionTestCaseData | Test-Completions
+}
+
+Remove-Item $hostsFile
