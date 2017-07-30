@@ -57,6 +57,25 @@ Describe "Get-HostEntry" {
             $results.length | Should Be 2
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        "#127.0.0.2 hostname" > $altHostsFile
+            
+
+        $result = Get-HostEntry -Name "hostname" -HostsPath $altHostsFile
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $result.Address | Should Be "127.0.0.2"
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Describe "Get-HostEntry Tab completion" {

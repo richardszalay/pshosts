@@ -78,6 +78,34 @@ Describe "Disable-HostEntry" {
             $results.length | Should Be 0
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        BeforeEach {
+            Add-HostEntry -Name "hostname" -Loopback -HostsPath $altHostsFile | Out-Null
+
+            Disable-HostEntry -Name "hostname" -HostsPath $altHostsFile
+        }
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $results = Get-HostEntry -HostsPath $altHostsFile | Where-Object { -not $_.Enabled }
+
+            $results.length | Should Be 1
+        }
+
+        It "Does not modify the default hosts file" {
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
+
+            $results.length | Should Be 0
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Describe "Disable-HostEntry Tab completion" {

@@ -70,6 +70,35 @@ Describe "Remove-HostEntry" {
             $results.length | Should Be 3
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        BeforeEach {
+            "#10.10.10.10 hostname`n127.0.0.1 hostname2`n127.0.0.1 somethingelse.unrelated" > $altHostsFile
+            
+
+            Remove-HostEntry -Name "hostname" -HostsPath $altHostsFile
+        }
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $results = Get-HostEntry -HostsPath $altHostsFile
+
+            $results.length | Should Be 2
+        }
+
+        It "Does not modify the default hosts file" {
+            $results = Get-HostEntry
+
+            $results.length | Should Be 3
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Describe "Remove-HostEntry Tab completion" {

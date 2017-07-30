@@ -102,6 +102,35 @@ Describe "Set-HostEntry" {
             $contents | Should Match "abc.def.hij"
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        BeforeEach {
+            "#10.10.10.10 hostname`n127.0.0.1 hostname2" > $altHostsFile
+            
+
+            Set-HostEntry -Name "hostname" -Address "127.0.0.1" -HostsPath $altHostsFile
+        }
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $results = Get-HostEntry hostname -HostsPath $altHostsFile
+
+            $results[0].Address | Should Be "127.0.0.1"
+        }
+
+        It "Does not modify the default hosts file" {
+            $results = Get-HostEntry hostname
+
+            $results[0].Address | Should Be "10.10.10.10"
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Describe "Set-HostEntry Tab completion" {

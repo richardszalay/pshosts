@@ -47,6 +47,19 @@ Describe "Test-HostEntry" {
         }
     }
 
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+        "10.10.10.10 hostname3" > $altHostsFile
+
+        It "Tests against the supplied hosts file" {
+            $result = Test-HostEntry hostname3 -HostsPath $altHostsFile
+
+            $result | Should Be $true
+        }
+
+        Remove-Item $altHostsFile
+    }
+
 }
 
 Describe "Test-HostEntry Tab completion" {

@@ -70,6 +70,35 @@ Describe "Enable-HostEntry" {
             $results.length | Should Be 1
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        BeforeEach {
+            "#10.10.10.10 hostname`n127.0.0.1 hostname2`n127.0.0.1 somethingelse.unrelated" > $altHostsFile
+            
+
+            Enable-HostEntry -Name "hostname" -HostsPath $altHostsFile
+        }
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $results = Get-HostEntry -HostsPath $altHostsFile | Where-Object { -not $_.Enabled }
+
+            $results.length | Should Be 0
+        }
+
+        It "Does not modify the default hosts file" {
+            $results = Get-HostEntry | Where-Object { -not $_.Enabled }
+
+            $results.length | Should Be 1
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Describe "Enable-HostEntry Tab completion" {

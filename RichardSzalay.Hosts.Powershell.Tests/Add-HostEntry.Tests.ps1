@@ -99,6 +99,31 @@ Describe "Add-HostEntry" {
             $contents | Should Match "abc.def.hij"
         }
     }
+
+    Context "Supplying HostsPath" {
+        $altHostsFile = [System.IO.Path]::GetTempFileName()
+
+        BeforeEach {
+            Add-HostEntry -Name "hostname1" -Loopback | Out-Null
+            Add-HostEntry -Name "hostname2" -Loopback -HostsPath $altHostsFile | Out-Null
+        }
+
+        AfterEach {
+            Set-Content $altHostsFile ""
+        }
+
+        It "Modifies the supplied hosts file" {
+            $contents = Get-Content $altHostsFile -Raw
+            $contents | Should Match "hostname2"
+        }
+
+        It "Does not modify the default hosts file" {
+            $contents = Get-Content $hostsFile -Raw
+            $contents | Should Not Match "hostname2"
+        }
+
+        Remove-Item $altHostsFile
+    }
 }
 
 Remove-Item $hostsFile
