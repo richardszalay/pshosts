@@ -12,7 +12,7 @@
 RootModule = 'RichardSzalay.Hosts.Powershell.dll'
 
 # Version number of this module.
-ModuleVersion = '1.2'
+ModuleVersion = '1.2.1'
 
 # ID used to uniquely identify this module
 GUID = '665f6cdf-d7c5-4b2b-8b0a-071d6ce7d16f'
@@ -101,7 +101,8 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Added `-Loopback` and `-IPv6Loopback` parameters to Add/Set-HostEntry (#6)
+        ReleaseNotes = '* Hostname parameter completion now works correctly on Linux (#12)
+* Added `-Loopback` and `-IPv6Loopback` parameters to Add/Set-HostEntry (#6)
 * Added `IPAddress` and `IsLoopback` properties to HostEntry (#2)
 '
 
