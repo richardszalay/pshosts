@@ -11,11 +11,20 @@ namespace RichardSzalay.Hosts.Powershell
         [Parameter]
         public string HostsPath { get; set; }
 
-        protected HostsFile GetHostsFile()
+        private string GetHostsPath()
         {
             return String.IsNullOrEmpty(HostsPath)
+                ? GetVariableValue("PSHostsFilePath") as string
+                : HostsPath;
+        }
+
+        protected HostsFile GetHostsFile()
+        {
+            var suppliedHostsPath = GetHostsPath();
+            
+            return String.IsNullOrEmpty(suppliedHostsPath)
                 ? new HostsFile()
-                : new HostsFile(HostsPath);
+                : new HostsFile(suppliedHostsPath);
         }
 
         protected bool TryGetHostEntries(HostsFile hostsFile, string name, int line, bool requireMatch, out ICollection<HostEntry> hostEntries)
