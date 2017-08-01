@@ -78,7 +78,7 @@ task UpdateModuleVersion -depends Compile {
   if ($moduleVersion)
   {
     Push-Location (Resolve-Path $PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\)
-    Update-ModuleManifest -Path PsHosts.psd1 -ModuleVersion $moduleVersion
+    Update-ModuleManifest -Path .\PsHosts.psd1 -ModuleVersion $moduleVersion
     Pop-Location
   }
 }
