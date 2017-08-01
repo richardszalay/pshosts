@@ -13,7 +13,11 @@ properties {
   $mspecCliPath = "$PSScriptRoot\..\packages\Machine.Specifications.Runner.Console.0.9.3\tools\mspec-clr4.exe"
 }
 
-task default -depends Test
+if ($env:CI -and $env:PS_GALLERY_KEY) {
+  task default -depends Publish
+} else {
+  task default -depends Test
+}
 
 task TestLib -depends Compile {
   & $mspecCliPath $libPath
@@ -58,4 +62,28 @@ task Compile -depends Restore, Clean {
 
 task Clean {
   msbuild $solutionPath /t:Clean /v:m /nologo
+}
+
+task RegisterGallery {
+  if ($env:PS_GALLERY_PUBLISH) {
+    Unregister-PSRepository -Name pshosts-gallery -ErrorAction SilentlyContinue
+
+    Register-PSRepository -Name pshosts-gallery -SourceLocation $env:PS_GALLERY_SOURCE -PublishLocation $env:PS_GALLERY_PUBLISH
+  }
+}
+
+task UpdateModuleVersion -depends Compile {
+  $moduleVersion = $env:APPVEYOR_BUILD_VERSION
+
+  if ($moduleVersion)
+  {
+    Update-ModuleManifest -Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\PsHosts.psd1 -ModuleVersion $moduleVersion
+  }
+}
+
+# TODO: Also support real publishing (as opposed to nightly feed)
+task Publish -depends Test, UpdateModuleVersion, RegisterGallery {
+  Publish-Module -Repository pshosts-gallery -NuGetApiKey $env:PS_GALLERY_KEY -Path (Resolve-Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts)
+
+  Unregister-PSRepository -Name pshosts-gallery -ErrorAction SilentlyContinue
 }
