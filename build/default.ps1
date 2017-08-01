@@ -77,7 +77,9 @@ task UpdateModuleVersion -depends Compile {
 
   if ($moduleVersion)
   {
-    Update-ModuleManifest -Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\PsHosts.psd1 -ModuleVersion $moduleVersion
+    Push-Location ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\
+    Update-ModuleManifest -Path PsHosts.psd1 -ModuleVersion $moduleVersion
+    Pop-Location
   }
 }
 
