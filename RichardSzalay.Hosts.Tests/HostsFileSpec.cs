@@ -1,4 +1,5 @@
-﻿using Machine.Specifications;
+﻿using FluentAssertions;
+using Machine.Specifications;
 using RichardSzalay.Hosts.Tests.Infrastructure;
 using RichardSzalay.Hosts.Tests.Properties;
 using System;
@@ -34,10 +35,10 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_parse_individual_host_entries = () =>
-                result.Entries.ShouldEqual(expectedEntries);
+                result.Entries.Should().Equal(expectedEntries);
 
             It should_not_be_in_a_dirty_state = () =>
-                result.IsDirty.ShouldBeFalse();
+                result.IsDirty.Should().Be(false);
 
             static HostEntry[] expectedEntries;
         }
@@ -56,7 +57,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_parse_correctly = () =>
-                result.Entries.ShouldEqual(expectedEntries);
+                result.Entries.Should().Equal(expectedEntries);
 
             static HostEntry[] expectedEntries;
         }
@@ -74,7 +75,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_ignore_the_sample_hostnames = () =>
-                result.Entries.ShouldEqual(expectedEntries);
+                result.Entries.Should().Equal(expectedEntries);
 
             static HostEntry[] expectedEntries;
         }
@@ -115,7 +116,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Disable);
+                result.Should().Be(Resources.SampleHostsFile_Disable);
 
             static HostEntry[] expectedEntries;
         }
@@ -135,7 +136,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Reorder);
+                result.Should().Be(Resources.SampleHostsFile_Reorder);
 
             static HostEntry[] expectedEntries;
         }
@@ -155,7 +156,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.SampleHostsFile_Delete);
+                result.Should().Be(Resources.SampleHostsFile_Delete);
 
             static HostEntry[] expectedEntries;
         }
@@ -189,7 +190,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.ShouldEqual(Resources.ComplexHostsFile_Expected);
+                result.Should().Be(Resources.ComplexHostsFile_Expected);
 
             static HostEntry[] expectedEntries;
         }
@@ -208,10 +209,10 @@ namespace RichardSzalay.Hosts.Tests
                 sut.AddEntry(newEntry);
 
             It should_contain_the_new_entry = () =>
-                sut.Entries.ShouldContain(newEntry);
+                sut.Entries.Should().Contain(newEntry);
 
             It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
+                sut.IsDirty.Should().Be(true);
 
             static HostsFile sut;
             static HostEntry newEntry;
@@ -229,7 +230,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = Catch.Exception(() => sut.AddEntry(null));
 
             It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentNullException>();
+                result.Should().BeOfType<ArgumentNullException>();
 
             static HostsFile sut;
             static Exception result;
@@ -245,10 +246,10 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             Because of = () =>
-                result = Catch.Exception(() => sut.AddEntry(null));
+                result = Catch.Exception(() => sut.AddEntry(newEntry));
 
             It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentException>();
+                result.Should().BeOfType<ArgumentException>();
 
             static HostsFile sut;
             static Exception result;
@@ -268,10 +269,10 @@ namespace RichardSzalay.Hosts.Tests
                 sut.DeleteEntry(sut.Entries.First());
 
             It should_not_contain_the_new_entry = () =>
-                sut.Entries.ShouldNotContain(entryToDelete);
+                sut.Entries.Should().NotContain(entryToDelete);
 
             It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
+                sut.IsDirty.Should().Be(true);
 
             static HostsFile sut;
             static HostEntry entryToDelete;
@@ -289,7 +290,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = Catch.Exception(() => sut.DeleteEntry(new HostEntry("host.localhost", "1.0.0.0", null)));
 
             It should_not_throw_an_exception = () =>
-                result.ShouldBeNull();
+                result.Should().BeNull();
 
             static HostsFile sut;
             static Exception result;
@@ -307,7 +308,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = Catch.Exception(() => sut.DeleteEntry(null));
 
             It should_throw_an_exception = () =>
-                result.ShouldBeOfType<ArgumentNullException>();
+                result.Should().BeOfType<ArgumentNullException>();
 
             static HostsFile sut;
             static Exception result;
@@ -325,7 +326,7 @@ namespace RichardSzalay.Hosts.Tests
                 sut.Entries.First().Enabled = false;
 
             It should_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeTrue();
+                sut.IsDirty.Should().Be(true);
 
             static HostsFile sut;
         }
@@ -344,7 +345,7 @@ namespace RichardSzalay.Hosts.Tests
                 sut.Save();
 
             It should_no_longer_be_in_a_dirty_state = () =>
-                sut.IsDirty.ShouldBeFalse();
+                sut.IsDirty.Should().Be(false);
 
             static HostsFile sut;
             static HostEntry newEntry;

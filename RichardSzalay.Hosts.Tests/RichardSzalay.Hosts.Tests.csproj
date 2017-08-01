@@ -32,14 +32,21 @@
     <NoWarn>169</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Machine.Specifications">
-      <HintPath>..\packages\Machine.Specifications.0.5.16\lib\net40\Machine.Specifications.dll</HintPath>
+    <Reference Include="FluentAssertions, Version=4.19.3.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.19.3\lib\net40\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Machine.Specifications.Clr4">
-      <HintPath>..\packages\Machine.Specifications.0.5.16\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
+    <Reference Include="FluentAssertions.Core, Version=4.19.3.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.19.3\lib\net40\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Machine.Specifications, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Specifications.0.11.0\lib\net40\Machine.Specifications.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,9 +64,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RichardSzalay.Hosts\RichardSzalay.Hosts.csproj">
@@ -82,6 +86,9 @@
     <Content Include="Resources\SampleHostsFile_Delete.txt" />
     <Content Include="Resources\SampleHostsFile.txt" />
     <Content Include="Resources\DefaultHostsFile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

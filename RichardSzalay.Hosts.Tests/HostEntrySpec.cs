@@ -1,4 +1,5 @@
-﻿using Machine.Specifications;
+﻿using FluentAssertions;
+using Machine.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,25 +17,25 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("hostname", "address", "comment");
 
             It should_assign_the_given_hostname = () =>
-                result.Name.ShouldEqual("hostname");
+                result.Name.Should().Be("hostname");
 
             It should_assign_the_given_address = () =>
-                result.Address.ShouldEqual("address");
+                result.Address.Should().Be("address");
 
             It should_assign_the_given_comment = () =>
-                result.Comment.ShouldEqual("comment");
+                result.Comment.Should().Be("comment");
 
             It should_be_enabled = () =>
-                result.Enabled.ShouldBeTrue();
+                result.Enabled.Should().Be(true);
 
             It should_not_refer_to_a_valid_line = () =>
-                result.Line.ShouldEqual(-1);
+                result.Line.Should().Be(-1);
 
             It should_be_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
+                result.IsDirty.Should().Be(true);
 
             It should_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeTrue();
+                result.IsNew.Should().Be(true);
 
             static HostEntry result;
         }
@@ -46,25 +47,25 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry(5, "original-line", " ", false, "hostname", "address", "comment");
 
             It should_assign_the_given_hostname = () =>
-                result.Name.ShouldEqual("hostname");
+                result.Name.Should().Be("hostname");
 
             It should_assign_the_given_address = () =>
-                result.Address.ShouldEqual("address");
+                result.Address.Should().Be("address");
 
             It should_assign_the_given_comment = () =>
-                result.Comment.ShouldEqual("comment");
+                result.Comment.Should().Be("comment");
 
             It should_assign_the_given_enabled_State = () =>
-                result.Enabled.ShouldBeFalse();
+                result.Enabled.Should().Be(false);
 
             It should_assign_the_given_line_number = () =>
-                result.Line.ShouldEqual(5);
+                result.Line.Should().Be(5);
 
             It should_not_be_dirty = () =>
-                result.IsDirty.ShouldBeFalse();
+                result.IsDirty.Should().Be(false);
 
             It should_not_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeFalse();
+                result.IsNew.Should().Be(false);
 
             static HostEntry result;
         }
@@ -76,7 +77,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry(0, "original-line", " ", false, "hostname", "address", "comment");
 
             It should_not_identify_itself_as_new = () =>
-                result.IsNew.ShouldBeFalse();
+                result.IsNew.Should().Be(false);
 
             static HostEntry result;
         }
@@ -96,7 +97,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_not_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeFalse();
+                result.IsDirty.Should().Be(false);
 
             static HostEntry result;
         }
@@ -111,7 +112,7 @@ namespace RichardSzalay.Hosts.Tests
                 result.Name = "hostname2";
 
             It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
+                result.IsDirty.Should().Be(true);
 
             static HostEntry result;
         }
@@ -126,7 +127,7 @@ namespace RichardSzalay.Hosts.Tests
                 result.Address = "address2";
 
             It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
+                result.IsDirty.Should().Be(true);
 
             static HostEntry result;
         }
@@ -141,7 +142,7 @@ namespace RichardSzalay.Hosts.Tests
                 result.Comment = "comment2";
 
             It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
+                result.IsDirty.Should().Be(true);
 
             static HostEntry result;
         }
@@ -156,7 +157,7 @@ namespace RichardSzalay.Hosts.Tests
                 result.Enabled = true;
 
             It should_identify_itself_as_dirty = () =>
-                result.IsDirty.ShouldBeTrue();
+                result.IsDirty.Should().Be(true);
 
             static HostEntry result;
         }
@@ -174,16 +175,16 @@ namespace RichardSzalay.Hosts.Tests
                 entryA.SwapLine(entryB);
 
             It should_mark_the_swapper_as_dirty = () =>
-                entryA.IsDirty.ShouldBeTrue();
+                entryA.IsDirty.Should().Be(true);
 
             It should_assign_the_swapees_line_number_to_the_swapper = () =>
-                entryA.Line.ShouldEqual(10);
+                entryA.Line.Should().Be(10);
 
             It should_mark_the_swappee_as_dirty = () =>
-                entryB.IsDirty.ShouldBeTrue();
+                entryB.IsDirty.Should().Be(true);
 
             It should_assign_the_swapers_line_number_to_the_swappee = () =>
-                entryB.Line.ShouldEqual(5);
+                entryB.Line.Should().Be(5);
 
             static HostEntry entryA;
             static HostEntry entryB;
@@ -203,8 +204,8 @@ namespace RichardSzalay.Hosts.Tests
 
             It should_also_swap_the_new_status = () =>
             {
-                entryA.IsNew.ShouldBeFalse();
-                entryB.IsNew.ShouldBeTrue();
+                entryA.IsNew.Should().Be(false);
+                entryB.IsNew.Should().Be(true);
             };
 
             static HostEntry entryA;
@@ -221,7 +222,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_prefix_the_result_with_a_comment_character = () =>
-                result.ShouldStartWith("#");
+                result.Should().StartWith("#");
 
             static HostEntry sut;
             static string result;
@@ -237,7 +238,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_not_prefix_the_result_with_a_comment_character = () =>
-                result.ShouldStartWith("address");
+                result.Should().StartWith("address");
 
             static HostEntry sut;
             static string result;
@@ -253,7 +254,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_regenerate_using_the_same_spacing_policy = () =>
-                result.ShouldEqual("# address\thostname # comment");
+                result.Should().Be("# address\thostname # comment");
 
             static HostEntry sut;
             static string result;
@@ -269,7 +270,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_regenerate_using_the_same_spacing_policy = () =>
-                result.ShouldEndWith(" # comment");
+                result.Should().EndWith(" # comment");
 
             static HostEntry sut;
             static string result;
@@ -285,7 +286,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_not_include_an_empty_comment = () =>
-                result.ShouldEndWith("hostname");
+                result.Should().EndWith("hostname");
 
             static HostEntry sut;
             static string result;
@@ -305,7 +306,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_regenerate_the_line = () =>
-                result.ShouldEqual("# address hostname2 # comment");
+                result.Should().Be("# address hostname2 # comment");
 
             static HostEntry sut;
             static string result;
@@ -321,7 +322,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_generate_the_line = () =>
-                result.ShouldEqual("# address hostname # comment");
+                result.Should().Be("# address hostname # comment");
 
             static HostEntry sut;
             static string result;
@@ -337,7 +338,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = sut.ToString();
 
             It should_not_regenerate_the_line = () =>
-                result.ShouldEqual("original-line");
+                result.Should().Be("original-line");
 
             static HostEntry sut;
             static string result;
@@ -347,7 +348,7 @@ namespace RichardSzalay.Hosts.Tests
         class When_comparing_two_identical_host_entries : HostEntryComparisonContext
         {
             It should_return_true = () =>
-                result.ShouldBeTrue();
+                result.Should().Be(true);
         }
 
         [Subject(typeof(HostEntry), "Equals")]
@@ -357,7 +358,7 @@ namespace RichardSzalay.Hosts.Tests
                 entryB.Name = "hostname2";
 
             It should_return_false = () =>
-                result.ShouldBeFalse();
+                result.Should().Be(false);
         }
 
         [Subject(typeof(HostEntry), "Equals")]
@@ -367,7 +368,7 @@ namespace RichardSzalay.Hosts.Tests
                 entryB.Address = "address2";
 
             It should_return_false = () =>
-                result.ShouldBeFalse();
+                result.Should().Be(false);
         }
 
         [Subject(typeof(HostEntry), "Equals")]
@@ -380,7 +381,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_return_false = () =>
-                result.ShouldBeFalse();
+                result.Should().Be(false);
         }
 
         class HostEntryComparisonContext
@@ -406,7 +407,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = HostEntry.IsIgnoredHostname("rhino.acme.com");
 
             It should_be_ignored = () =>
-                result.ShouldBeTrue();
+                result.Should().Be(true);
 
             static bool result;
         }
@@ -418,7 +419,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = HostEntry.IsIgnoredHostname("www.google.com");
 
             It should_not_be_ignored = () =>
-                result.ShouldBeFalse();
+                result.Should().Be(false);
 
             static bool result;
         }
@@ -430,7 +431,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "10.10.10.10", null);
 
             It should_return_an_IPAddress_object = () =>
-                result.IPAddress.ShouldEqual(IPAddress.Parse("10.10.10.10"));
+                result.IPAddress.Should().Be(IPAddress.Parse("10.10.10.10"));
 
             static HostEntry result;
         }
@@ -442,7 +443,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "2001:db8::ff00:42:8329", null);
 
             It should_return_an_IPAddress_object = () =>
-                result.IPAddress.ShouldEqual(IPAddress.Parse("2001:db8::ff00:42:8329"));
+                result.IPAddress.Should().Be(IPAddress.Parse("2001:db8::ff00:42:8329"));
 
             static HostEntry result;
         }
@@ -454,7 +455,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "abc.efg.hij.klm", null);
 
             It should_return_an_IPAddress_object = () =>
-                result.IPAddress.ShouldBeNull();
+                result.IPAddress.Should().BeNull();
 
             static HostEntry result;
         }
@@ -466,7 +467,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", null, null);
 
             It should_return_an_IPAddress_object = () =>
-                result.IPAddress.ShouldBeNull();
+                result.IPAddress.Should().BeNull();
 
             static HostEntry result;
         }
@@ -481,7 +482,7 @@ namespace RichardSzalay.Hosts.Tests
                 sut.Address = "10.10.10.10";
 
             It should_recalculate_IPAddress = () =>
-                sut.IPAddress.ShouldEqual(IPAddress.Parse("10.10.10.10"));
+                sut.IPAddress.Should().Be(IPAddress.Parse("10.10.10.10"));
 
             static HostEntry sut;
         }
@@ -493,7 +494,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "127.0.0.1", null);
 
             It should_be_true = () =>
-                result.IsLoopback.ShouldBeTrue();
+                result.IsLoopback.Should().Be(true);
 
             static HostEntry result;
         }
@@ -505,7 +506,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "::1", null);
 
             It should_be_true = () =>
-                result.IsLoopback.ShouldBeTrue();
+                result.IsLoopback.Should().Be(true);
 
             static HostEntry result;
         }
@@ -517,7 +518,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "10.10.10.10", null);
 
             It should_be_true = () =>
-                result.IsLoopback.ShouldBeFalse();
+                result.IsLoopback.Should().Be(false);
 
             static HostEntry result;
         }
@@ -529,7 +530,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = new HostEntry("tempuri.org", "abc.def.hij", null);
 
             It should_be_true = () =>
-                result.IsLoopback.ShouldBeFalse();
+                result.IsLoopback.Should().Be(false);
 
             static HostEntry result;
         }

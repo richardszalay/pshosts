@@ -10,16 +10,7 @@ properties {
   $solutionPath = Join-Path $PSScriptRoot "..\RichardSzalay.Hosts.sln"
   $testFilePattern = "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell.Tests\*"
   $libPath = "$PSScriptRoot\..\RichardSzalay.Hosts.Tests\bin\$configuration\RichardSzalay.Hosts.Tests.dll"
-
-  if ($env:APPVEYOR)
-  {
-    # Appveyor adds a test result friendly version of mspec to the path
-    $mspecCliPath = "mspec"
-  }
-  else
-  {
-    $mspecCliPath = "$PSScriptRoot\..\packages\Machine.Specifications.0.5.16\tools\mspec-clr4.exe"
-  }
+  $mspecCliPath = "$PSScriptRoot\..\packages\Machine.Specifications.Runner.Console.0.9.3\tools\mspec-clr4.exe"
 }
 
 task default -depends Test

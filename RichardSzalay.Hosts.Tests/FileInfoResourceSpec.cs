@@ -1,4 +1,5 @@
-﻿using Machine.Specifications;
+﻿using FluentAssertions;
+using Machine.Specifications;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,7 +36,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_overwrite_existing_contents = () =>
-                result.ShouldEqual("Test 2");
+                result.Should().Be("Test 2");
 
             static FileInfoResource sut;
             static FileInfo tempFile;
