@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RichardSzalay.Hosts.Powershell
 {
-    [Cmdlet(VerbsCommon.Set, Nouns.HostEntry, SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Set, Nouns.HostEntry, SupportsShouldProcess = true, DefaultParameterSetName = "SpecificAddress")]
     public class SetHostEntryCommand : WriteHostEntryCommandBase
     {
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
@@ -16,7 +16,7 @@ namespace RichardSzalay.Hosts.Powershell
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public int Line { get; set; }
 
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "SpecificAddress")]
+        [Parameter(Position = 1, ParameterSetName = "SpecificAddress")]
         public string Address { get; set; }
 
         [Parameter(ParameterSetName = "IPv4LoopbackAddress")]
@@ -31,12 +31,27 @@ namespace RichardSzalay.Hosts.Powershell
         [Parameter]
         public bool Enabled { get; set; }
 
+        [Parameter]
+        public SwitchParameter Force { get; set; }
+
         protected override void ProcessRecord()
         {
             ICollection<HostEntry> hostEntries;
 
-            if (!TryGetHostEntries(HostsFile, Name, Line, true, out hostEntries))
+            bool addIfMissing = this.Force.IsPresent && !WildcardPattern.ContainsWildcardCharacters(Name) && IsSettingAddress();
+
+            if (!TryGetHostEntries(HostsFile, Name, Line, !addIfMissing, out hostEntries))
             {
+                if (addIfMissing)
+                {
+                    var newEntry = new HostEntry(Name, ValidateAddress(), Comment)
+                    {
+                        Enabled = this.MyInvocation.BoundParameters.ContainsKey("Enabled") ? Enabled : true
+                    };
+
+                    this.HostsFile.AddEntry(newEntry);
+                }
+
                 return;
             }
 
@@ -113,6 +128,11 @@ namespace RichardSzalay.Hosts.Powershell
             sb.Append(")");
 
             return sb.ToString();
+        }
+
+        protected override string MissingHostEntryMessage
+        {
+            get { return "Host entry '{0}' not found. Use -Force to add anyway"; }
         }
     }
 }

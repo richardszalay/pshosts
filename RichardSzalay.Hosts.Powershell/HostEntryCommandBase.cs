@@ -57,7 +57,7 @@ namespace RichardSzalay.Hosts.Powershell
                 {
                     if (requireMatch)
                     {
-                        WriteError(new ErrorRecord(new ItemNotFoundException(String.Format("Host entry '{0}' not found", name)),
+                        WriteError(new ErrorRecord(new ItemNotFoundException(String.Format(MissingHostEntryMessage, name)),
                             "ItemNotFound", ErrorCategory.ObjectNotFound, name));
                     }
                     return false;
@@ -65,6 +65,11 @@ namespace RichardSzalay.Hosts.Powershell
 
                 return true;
             }
+        }
+
+        protected virtual string MissingHostEntryMessage
+        {
+            get { return "Host entry '{0}' not found"; }
         }
     }
 }

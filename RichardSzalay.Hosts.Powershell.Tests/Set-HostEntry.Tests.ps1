@@ -31,6 +31,70 @@ Describe "Set-HostEntry" {
         }
     }
 
+    Context "Supplying Force but not Address with a hostname that doesn't already exist" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname3" -Comment "Test" -ErrorVariable err 2>&1 3>&1 | Out-Null
+        }
+
+        It "Emits an error" {
+            $err | Should Not BeNullOrEmpty
+        }
+
+        It "Does not add the entry" {
+            $results = Get-HostEntry
+
+            $results.length | Should Be 2
+        }
+    }
+
+    Context "Supplying Force and Address with a hostname that doesn't already exist" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -Force -ErrorVariable err 2>&1 3>&1 | Out-Null
+        }
+
+        It "Does not emit an error" {
+            $err | Should BeNullOrEmpty
+        }
+
+        It "Adds the entry" {
+            $results = Get-HostEntry
+
+            $results.length | Should Be 3
+        }
+    }
+
+    Context "Supplying Force and Loopback with a hostname that doesn't already exist" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname3" -Loopback -Force -ErrorVariable err 2>&1 3>&1 | Out-Null
+        }
+
+        It "Does not emit an error" {
+            $err | Should BeNullOrEmpty
+        }
+
+        It "Adds the entry" {
+            $results = Get-HostEntry
+
+            $results.length | Should Be 3
+        }
+    }
+
+    Context "Supplying Force and IPv6Loopback with a hostname that doesn't already exist" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname3" -IPv6Loopback -Force -ErrorVariable err 2>&1 3>&1 | Out-Null
+        }
+
+        It "Does not emit an error" {
+            $err | Should BeNullOrEmpty
+        }
+
+        It "Adds the entry" {
+            $results = Get-HostEntry
+
+            $results.length | Should Be 3
+        }
+    }
+
     Context "Supplying address" {
         BeforeEach {
             Set-HostEntry -Name "hostname" -Address "10.10.10.10"
@@ -130,6 +194,49 @@ Describe "Set-HostEntry" {
         }
 
         Remove-Item $altHostsFile
+    }
+
+
+    Context "Supplying only Comment" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname" -Comment "Testing" | Out-Null
+        }
+
+        It "Updates the comment" {
+            $result = Get-HostEntry hostname
+            $result.Comment | Should Be "Testing"
+        }
+
+        It "Does not update the enabled state" {
+            $result = Get-HostEntry hostname
+            $result.Enabled | Should Be $true
+        }
+
+        It "Does not update the address" {
+            $result = Get-HostEntry hostname
+            $result.Address | Should Be "10.10.10.10"
+        }
+    }
+
+    Context "Supplying only Enabled" {
+        BeforeEach {
+            Set-HostEntry -Name "hostname" -Enabled $false | Out-Null
+        }
+
+        It "Does not the comment" {
+            $result = Get-HostEntry hostname
+            $result.Comment | Should BeNullOrEmpty
+        }
+
+        It "Updates the enabled state" {
+            $result = Get-HostEntry hostname
+            $result.Enabled | Should Be $false
+        }
+
+        It "Does not update the address" {
+            $result = Get-HostEntry hostname
+            $result.Address | Should Be "10.10.10.10"
+        }
     }
 }
 
