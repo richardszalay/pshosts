@@ -53,7 +53,9 @@ task GetNuget {
 }
 
 task Restore -depends GetNuGet {
+  if (-not $env:CI) {
     & ".\.tools\nuget.exe" restore $solutionPath
+  }
 }
 
 task Compile -depends Restore, Clean { 
