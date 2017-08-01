@@ -5,7 +5,6 @@ git:
 
 os:
   - linux
-  - osx
 sudo: required
 dist: trusty
 osx_image: xcode8.2
