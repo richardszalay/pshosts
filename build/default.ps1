@@ -25,7 +25,7 @@ task TestCmdlets -depends Compile {
       param($modulePath, $pattern)
 
       Import-Module $modulePath -Force      
-      Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml
+      Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml -TestName "RichardSzalay.Hosts.Powershell.Tests"
 
       if ($env:APPVEYOR_JOB_ID)
       {
