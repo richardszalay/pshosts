@@ -66,16 +66,17 @@ FormatsToProcess = @('PsHosts.format.ps1xml')
 NestedModules = @('PsHosts.ParameterCompletion.psm1')
 
 # Functions to export from this module
-FunctionsToExport = '*'
+FunctionsToExport = @()
 
 # Cmdlets to export from this module
-CmdletsToExport = '*'
+CmdletsToExport = @("Add-HostEntry", "Get-HostEntry", "Set-HostEntry", "Disable-HostEntry", 
+	"Enable-HostEntry", "Remove-HostEntry", "Test-HostEntry")
 
 # Variables to export from this module
-VariablesToExport = '*'
+VariablesToExport = @()
 
 # Aliases to export from this module
-AliasesToExport = '*'
+AliasesToExport = @()
 
 # List of all modules packaged with this module
 # ModuleList = @()
