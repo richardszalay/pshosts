@@ -13,8 +13,8 @@ properties {
   $mspecCliPath = "$PSScriptRoot\..\packages\Machine.Specifications.Runner.Console.0.9.3\tools\mspec-clr4.exe"
 }
 
-if ($env:CI -and $env:PS_GALLERY_KEY) {
-  task default -depends Publish
+if ($env:APPVEYOR) {
+  task default -depends Appveyor
 } else {
   task default -depends Test
 }
@@ -64,14 +64,22 @@ task Compile -depends Restore, Clean {
 
 task Clean {
   msbuild $solutionPath /t:Clean /v:m /nologo
+
+  if (Test-Path "./output") {
+    Remove-Item -Recurse "./output"
+  }
 }
 
 task RegisterGallery {
-  if ($env:PS_GALLERY_PUBLISH) {
-    Unregister-PSRepository -Name pshosts-gallery -ErrorAction SilentlyContinue
-
-    Register-PSRepository -Name pshosts-gallery -SourceLocation $env:PS_GALLERY_SOURCE -PublishLocation $env:PS_GALLERY_PUBLISH
+  if (-not (Test-Path "./output")) {
+    mkdir output | Out-Null
   }
+
+  Unregister-PSRepository -Name pshosts-nupkg -ErrorAction SilentlyContinue
+
+  $outputPath = [string](Resolve-Path "./output")
+
+  Register-PSRepository -Name pshosts-nupkg -SourceLocation $outputPath -PublishLocation $outputPath
 }
 
 task UpdateModuleVersion -depends Compile {
@@ -85,9 +93,13 @@ task UpdateModuleVersion -depends Compile {
   }
 }
 
-# TODO: Also support real publishing (as opposed to nightly feed)
-task Publish -depends Test, UpdateModuleVersion, RegisterGallery {
-  Publish-Module -Repository pshosts-gallery -NuGetApiKey $env:PS_GALLERY_KEY -Path (Resolve-Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts)
 
-  Unregister-PSRepository -Name pshosts-gallery -ErrorAction SilentlyContinue
+task Package -depends Test, UpdateModuleVersion, RegisterGallery {
+  Publish-Module -Repository pshosts-nupkg -Path (Resolve-Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts)
+
+  Unregister-PSRepository -Name pshosts-nupkg
+}
+
+task Appveyor -depends Package {
+  Get-ChildItem -Path .\output\ -Filter *.nupkg | %{ Push-AppveyorArtifact $_.FullName }
 }
