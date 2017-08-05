@@ -1,4 +1,4 @@
-
+$psversionTable | out-string | write-host
 
 properties {
   if (-not $configuration) {
