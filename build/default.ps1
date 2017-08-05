@@ -29,12 +29,16 @@ task TestCmdlets -depends Compile {
       param($modulePath, $pattern)
 
       Import-Module $modulePath -Force      
-      Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml
+      $res = Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml -PassThru
 
       if ($env:APPVEYOR_JOB_ID)
       {
         $wc = New-Object 'System.Net.WebClient'
         $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\ps-results.xml))
+      }
+
+      if ($res.FailedCount -gt 0) { 
+          throw "$($res.FailedCount) tests failed."
       }
 
   } -args "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\$configuration\PsHosts\PsHosts.psd1",$testFilePattern
