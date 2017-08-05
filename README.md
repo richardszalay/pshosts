@@ -77,6 +77,22 @@ Remove-HostEntry *.local
 Get-HostEntry | ?{$_.IsLoopback} | Disable-HostEntry
 ```
 
+## Build Status
+
+### Master branch
+
+|         OS - PS Version             |          Build Status        |
+|-------------------------------------|------------------------------|
+| AppVeyor (Windows - PS 5.1)         | [![m-av-image][]][m-av-site] |
+| Travis CI (Linux - PS 6.0.0-Beta)  | [![m-tv-image][]][m-tv-site] |
+| Travis CI (MacOS - PS 6.0.0-Beta)  | [![m-tv-image][]][m-tv-site] |
+
+[m-av-image]: https://ci.appveyor.com/api/projects/status/cyaxgxjgwnmehyrg/branch/master?svg=true
+[m-av-site]: https://ci.appveyor.com/project/richardszalay/pshosts/branch/master
+[m-tv-image]: https://api.travis-ci.org/richardszalay/pshosts.svg?branch=master
+[m-tv-image]: https://travis-ci.org/PowerShell/PowerShellGet.svg?branch
+[m-tv-site]: https://travis-ci.org/richardszalay/pshosts
+
 ## Development
 
 PsHosts uses [psake](https://github.com/psake/psake) for build automation. Tests can be run by running the following from the root of the repository:
