@@ -1,6 +1,6 @@
 # PsHosts
 
-.NET Library and Powershell Cmdlet Module that adds an API around modifying the hosts file on Windows. Supports tab completion for hostnames.
+PsHosts is a [PowerShell](https://github.com/PowerShell/PowerShell) Module that provides Cmdlets for manipulating the local hosts file on Windows, Linux, and macOS. Supports tab completion for hostnames.
 
 All destructive commands support `-whatif` and honor original formatting wherever possible.
 
@@ -8,7 +8,7 @@ All destructive commands support `-whatif` and honor original formatting whereve
 
 ## Installation
 
-Windows 10 users can simply install the module using the command below. For Windows 8.1 and below, [PsGet](http://psget.net/) can be used with the same command.
+Windows 10, Linux, and macOS users can simply install the module using the command below. For Windows 8.1 and below, [PsGet](http://psget.net/) can be used with the same command.
 
     PS C:\> Install-Module PsHosts
 
@@ -94,6 +94,8 @@ Get-HostEntry | ?{$_.IsLoopback} | Disable-HostEntry
 [m-tv-site]: https://travis-ci.org/richardszalay/pshosts
 
 ## Development
+
+Building is only currently supported on Windows in order to continue supporting PowerShell 3. The Linux/macOS Travis-CI builds simply run the test suite against a pre-built module.
 
 PsHosts uses [psake](https://github.com/psake/psake) for build automation. Tests can be run by running the following from the root of the repository:
 
