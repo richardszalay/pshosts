@@ -85,8 +85,8 @@ function Wait-AppveyorBuild {
 
 $installModuleParams = @{
     Name = "PsHosts";
-    Scope = "CurrentUser";
     Repository = "pshosts";
+    Scope = "CurrentUser";
 }
 
 if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
@@ -94,7 +94,7 @@ if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
 
     Wait-AppveyorBuild -Build $appveyorBuild -TimeoutSeconds 120
 
-    Write-Hose "Found Appveyor build $(appveyorBuild.version) for commit $($env:TRAVIS_COMMIT)"
+    Write-Hose "Found Appveyor build $($appveyorBuild.version) for commit $($env:TRAVIS_COMMIT)"
 
     $moduleVersion = [Version]$appveyorBuild.version
 
