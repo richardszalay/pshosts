@@ -83,6 +83,12 @@ function Wait-AppveyorBuild {
     }
 }
 
+$installModuleParams = @{
+    Name = "PsHosts";
+    Scope = "CurrentUser";
+    Repository = "pshosts";
+}
+
 if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
     $appveyorBuild = Find-AppveyorBuild -RepositoryName $env:APPVEYOR_REPOSITORY_NAME -Commit $env:TRAVIS_COMMIT -TimeoutSeconds 20
 
@@ -90,12 +96,15 @@ if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
 
     Write-Hose "Found Appveyor build $(appveyorBuild.version) for commit $($env:TRAVIS_COMMIT)"
 
-    $moduleVersion = [string]$appveyorBuild.version
+    $moduleVersion = [Version]$appveyorBuild.version
+
+    $installModuleParams.MinimumVersion = $moduleVersion
+    $installModuleParams.MaximumVersion = $moduleVersion
 }
 
 Register-PSRepository pshosts -InstallationPolicy Trusted -SourceLocation $env:PS_GALLERY_SOURCE
+Install-Module @installModuleParams
 
-Install-Module PsHosts -Scope CurrentUser -Repository pshosts -MinimumVersion $moduleVersion -MaximumVersion $moduleVersion
 Import-Module PsHosts
 $res = Invoke-Pester -PassThru
 if ($res.FailedCount -gt 0) { 
