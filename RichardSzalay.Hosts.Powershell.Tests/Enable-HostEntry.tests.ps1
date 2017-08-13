@@ -17,7 +17,7 @@ Describe "Enable-HostEntry" {
 
     Context "Supplying a hostname that doesn't exist" {
         BeforeEach {
-            Enable-HostEntry -Name "hostname3" -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Enable-HostEntry -Name "hostname3" -ErrorAction SilentlyContinue -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {

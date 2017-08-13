@@ -17,7 +17,7 @@ Describe "Set-HostEntry" {
 
     Context "Supplying a hostname that doesn't already exist" {
         BeforeEach {
-            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -ErrorAction SilentlyContinue -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {
@@ -33,7 +33,7 @@ Describe "Set-HostEntry" {
 
     Context "Supplying Force but not Address with a hostname that doesn't already exist" {
         BeforeEach {
-            Set-HostEntry -Name "hostname3" -Comment "Test" -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Set-HostEntry -Name "hostname3" -Comment "Test" -Force -ErrorAction SilentlyContinue -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Emits an error" {
@@ -49,7 +49,7 @@ Describe "Set-HostEntry" {
 
     Context "Supplying Force and Address with a hostname that doesn't already exist" {
         BeforeEach {
-            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -Force -ErrorVariable err 2>&1 3>&1 | Out-Null
+            Set-HostEntry -Name "hostname3" -Address "10.10.10.10" -Force -ErrorAction SilentlyContinue -ErrorVariable err 2>&1 3>&1 | Out-Null
         }
 
         It "Does not emit an error" {
