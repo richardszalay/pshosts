@@ -1,3 +1,8 @@
+param(
+    # When set, tests against the published version of PsHosts
+    [switch]$Published
+)
+
 $psversionTable | out-string | write-host
 
 $ErrorActionPreference = "Stop"
@@ -85,24 +90,30 @@ function Wait-AppveyorBuild {
 
 $installModuleParams = @{
     Name = "PsHosts";
-    Repository = "pshosts";
     Scope = "CurrentUser";
 }
 
-if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
-    $appveyorBuild = Find-AppveyorBuild -RepositoryName $env:APPVEYOR_REPOSITORY_NAME -Commit $env:TRAVIS_COMMIT -TimeoutSeconds 20
+if (-not $Published) {
+    if ($env:APPVEYOR_REPOSITORY_NAME -and $env:TRAVIS_COMMIT) {
+        $appveyorBuild = Find-AppveyorBuild -RepositoryName $env:APPVEYOR_REPOSITORY_NAME -Commit $env:TRAVIS_COMMIT -TimeoutSeconds 20
+        Wait-AppveyorBuild -Build $appveyorBuild -TimeoutSeconds 120
+        Write-Host "Found Appveyor build $($appveyorBuild.version) for commit $($env:TRAVIS_COMMIT)"
 
-    Wait-AppveyorBuild -Build $appveyorBuild -TimeoutSeconds 120
+        $moduleVersion = [Version]$appveyorBuild.version
+        $installModuleParams.MinimumVersion = $moduleVersion
+        $installModuleParams.MaximumVersion = $moduleVersion
+    }
 
-    Write-Host "Found Appveyor build $($appveyorBuild.version) for commit $($env:TRAVIS_COMMIT)"
+    if ($env:PS_GALLERY_SOURCE) {
+        $psGallerySource = $env:PS_GALLERY_SOURCE
+    } else {
+        $psGallerySource = "https://ci.appveyor.com/nuget/pshosts"
+    }
 
-    $moduleVersion = [Version]$appveyorBuild.version
-
-    $installModuleParams.MinimumVersion = $moduleVersion
-    $installModuleParams.MaximumVersion = $moduleVersion
+    $installModuleParams.Repository = "pshosts"
+    Register-PSRepository pshosts -InstallationPolicy Trusted -SourceLocation $psGallerySource
 }
 
-Register-PSRepository pshosts -InstallationPolicy Trusted -SourceLocation $env:PS_GALLERY_SOURCE
 Install-Module @installModuleParams
 
 Import-Module PsHosts
