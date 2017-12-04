@@ -194,7 +194,7 @@ namespace RichardSzalay.Hosts
                 return Equals(other);
             }
 
-            return base.Equals(obj);
+            return false;
         }
 
         public override int GetHashCode()
@@ -210,7 +210,7 @@ namespace RichardSzalay.Hosts
                 .Contains(hostname.ToLowerInvariant());
         }
 
-        public static readonly string[] IgnoredHostnames = new string[]
+        internal static readonly string[] IgnoredHostnames = new string[]
         {
             "rhino.acme.com", "x.acme.com", "localhost"
         };
