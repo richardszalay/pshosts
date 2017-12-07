@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RichardSzalay.Hosts
 {
-    public class HostEntry : IEquatable<HostEntry>, ICloneable
+    public sealed class HostEntry : IEquatable<HostEntry>, ICloneable
     {
         private const string CommentPrefix = "# ";
 
@@ -15,8 +15,8 @@ namespace RichardSzalay.Hosts
         private bool isDirty = false;
 
         private int line;
-        private string originalLine;
-        private string spacer;
+        private readonly string originalLine;
+        private readonly string spacer;
 
         private bool enabled;
         private string hostname;
@@ -83,15 +83,9 @@ namespace RichardSzalay.Hosts
             }
         }
 
-        public IPAddress IPAddress
-        {
-            get { return ipAddress; }
-        }
+        public IPAddress IPAddress => ipAddress;
 
-        public bool IsLoopback
-        {
-            get { return ipAddress != null && IPAddress.IsLoopback(ipAddress); }
-        }
+        public bool IsLoopback => ipAddress != null && IPAddress.IsLoopback(ipAddress);
 
         public string Comment
         {
@@ -146,7 +140,7 @@ namespace RichardSzalay.Hosts
         {
             if (this.IsDirty)
             {
-                StringBuilder sb = new StringBuilder(); // TODO: estimate size?
+                StringBuilder sb = new StringBuilder();
 
                 if (!enabled)
                 {
@@ -222,13 +216,13 @@ namespace RichardSzalay.Hosts
                 return null;
             }
 
-            IPAddress ipAddress;
-            if (!IPAddress.TryParse(address, out ipAddress))
+            IPAddress parsedIpAddress;
+            if (!IPAddress.TryParse(address, out parsedIpAddress))
             {
                 return null;
             }
 
-            return ipAddress;
+            return parsedIpAddress;
         }
 
         public HostEntry Clone()

@@ -10,7 +10,7 @@ namespace RichardSzalay.Hosts
 {
     public class HostsFile
     {
-        private IResource resource;
+        private readonly IResource resource;
 
         private string[] lines;
         private List<HostEntry> entries;
@@ -215,7 +215,7 @@ namespace RichardSzalay.Hosts
 
         private string[] ReadAllLines(Stream stream)
         {
-            List<string> lines = new List<string>();
+            List<string> readLines = new List<string>();
 
             StreamReader reader = new StreamReader(stream);
 
@@ -223,12 +223,12 @@ namespace RichardSzalay.Hosts
 
             while (line != null)
             {
-                lines.Add(line);
+                readLines.Add(line);
 
                 line = reader.ReadLine();
             }
 
-            return lines.ToArray();
+            return readLines.ToArray();
         }
 
         private static string DefaultHostsFileLocation
