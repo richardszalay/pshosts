@@ -23,7 +23,7 @@ install:
   - popd
 
 script: 
-  - powershell -File "./build/travis.ps1"
+  - pwsh -File "./build/travis.ps1"
 
 
 
