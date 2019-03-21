@@ -1,4 +1,5 @@
-$psversionTable | out-string | write-host
+$psversionTable | Out-String | Write-Host
+Get-PSRepository | Out-String | Write-Host
 
 properties {
   if (-not $configuration) {
