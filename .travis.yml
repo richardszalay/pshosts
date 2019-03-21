@@ -1,29 +1,26 @@
-language: cpp
-
-git:
-  depth: 1000
-
-os:
-  - linux
-  - osx
-sudo: required
-dist: trusty
-osx_image: xcode8.1
+language: generic
 
 matrix:
-  allow_failures:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: false
+      addons:
+        apt:
+          sources:
+            - sourceline: "deb [arch=amd64] https://packages.microsoft.com/ubuntu/14.04/prod trusty main"
+              key_url: "https://packages.microsoft.com/keys/microsoft.asc"
+          packages:
+            - powershell
     - os: osx
+      osx_image: xcode9.1
+      before_install:
+        - brew tap caskroom/cask
+        - brew cask install powershell
   fast_finish: true
 
-install:
-  - export PATH=~/.dotnet:$PATH
-  - pushd build
-  - chmod +x install-powershell.sh
-  - ./install-powershell.sh
-  - popd
-
 script: 
-  - pwsh -File "./build/travis.ps1"
+  - pwsh -f "./build/travis.ps1"
 
 
 
