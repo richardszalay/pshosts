@@ -114,7 +114,7 @@ if (-not $Published) {
     Register-PSRepository pshosts -InstallationPolicy Trusted -SourceLocation $psGallerySource
 }
 
-Get-PSRepository | Out-Strig | Write-Host
+Get-PSRepository | Out-String | Write-Host
 
 $installModuleParams | Out-String | Write-Host
 
