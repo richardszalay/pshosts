@@ -1,0 +1,64 @@
+environment:
+  matrix:
+    - pwsh: native
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - pwsh: stable
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - pwsh: preview
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - pwsh: stable
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+    - pwsh: preview
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+  
+for:
+  -
+    matrix:
+      only:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - pwsh: native
+    build_script:
+      - ps: .\build.ps1
+  -
+    matrix:
+      only:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - pwsh: stable
+    before_build:
+      - ps: iex "& { $(irm https://aka.ms/install-powershell.ps1) } -AddToPath"
+    build_script:
+      - cmd: pwsh .\build.ps1
+
+  -
+    matrix:
+      only:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - pwsh: preview
+    before_build:
+      - ps: iex "& { $(irm https://aka.ms/install-powershell.ps1) } -AddToPath -Preview"
+    build_script:
+      - cmd: pwsh .\build.ps1
+
+  -
+    matrix:
+      only:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+        - pwsh: stable
+    before_build:
+      - sh: (curl -L -s https://aka.ms/install-powershell.sh) | sudo bash -s
+    build_script:
+      - sh: pwsh ./build.ps1
+
+  -
+    matrix:
+      only:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+        - pwsh: preview
+    before_build:
+      - sh: (curl -L -s https://aka.ms/install-powershell.sh) | sudo bash -s -- --preview
+    build_script:
+      - sh: pwsh_preview ./build.ps1
+
+
+
+
