@@ -21,12 +21,16 @@ if ($env:APPVEYOR) {
 }
 
 task TestLib -depends Compile {
-  & $mspecCliPath $libPath
+  dotnet test $solutionPath
 }
 
 task TestCmdlets -depends Compile {
   # Run powershell with -NoProfile to avoid collisions with installed PsHosts
-  powershell.exe -NoProfile -Command {
+  
+  $pwsh = if ($env:_) { $env:_ } else { "powershell.exe" }
+  
+  
+  & $pwsh -NoProfile -Command {
       param($modulePath, $pattern)
 
       Import-Module $modulePath -Force      
@@ -42,33 +46,21 @@ task TestCmdlets -depends Compile {
           throw "$($res.FailedCount) tests failed."
       }
 
-  } -args "$PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\$configuration\PsHosts\PsHosts.psd1",$testFilePattern
+  } -args (Resolve-Path (Join-Path $PSScriptRoot "../RichardSzalay.Hosts.Powershell/bin/$configuration/PsHosts/net40/PsHosts.psd1")),$testFilePattern
 }
 
 task Test -depends TestLib,TestCmdlets
 
-task GetNuget {
-    if (-not (Test-Path $nugetDir)) {
-        if (-not (Test-Path $toolsDir)) {
-            mkdir $toolsDir | Out-Null
-        }
-
-        Invoke-WebRequest -OutFile "$toolsDir\nuget.exe" -Uri "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
-    }
-}
-
-task Restore -depends GetNuGet {
-  if (-not $env:CI) {
-    & ".\.tools\nuget.exe" restore $solutionPath
-  }
+task Restore {
+  dotnet restore $solutionPath
 }
 
 task Compile -depends Restore, Clean { 
-  msbuild $solutionPath /p:Configuration=$configuration /v:m /nologo
+  dotnet build $solutionPath /p:Configuration=$configuration /v:m /nologo
 }
 
 task Clean {
-  msbuild $solutionPath /t:Clean /v:m /nologo
+  dotnet build $solutionPath /t:Clean /v:m /nologo
 
   if (Test-Path "./output") {
     Remove-Item -Recurse "./output"
