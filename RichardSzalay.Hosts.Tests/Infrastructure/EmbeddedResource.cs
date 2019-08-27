@@ -1,13 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace RichardSzalay.Hosts.Tests.Infrastructure
 {
-    public class StringResource : IResource
+    public class EmbeddedResource : IResource
     {
         private MemoryStream stream;
 
-        public static StringResource FromEmbeddedResource(string name)
+        public static string GetText(string name)
         {
             var assembly = typeof(StringResource).Assembly;
 
@@ -15,19 +16,25 @@ namespace RichardSzalay.Hosts.Tests.Infrastructure
 
             using (var reader = new StreamReader(assembly.GetManifestResourceStream(resourceName)))
             {
-                return new StringResource(reader.ReadToEnd());
+                return NormalizeLineEndings(reader.ReadToEnd());
             }
         }
 
-        public StringResource(string initialValue)
-            : this()
+        static string NormalizeLineEndings(string input)
         {
-            byte[] initialValueBytes = Encoding.UTF8.GetBytes(initialValue);
-
-            stream.Write(initialValueBytes, 0, initialValueBytes.Length);
+            return input.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
         }
 
-        public StringResource()
+        public EmbeddedResource(string name)
+            : this()
+        {
+            byte[] initialValueBytes = Encoding.UTF8.GetBytes(GetText(name));
+
+            stream.Write(initialValueBytes, 0, initialValueBytes.Length);
+
+        }
+
+        public EmbeddedResource()
         {
             stream = new MemoryStream();
         }

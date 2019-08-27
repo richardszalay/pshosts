@@ -1,11 +1,8 @@
 ﻿using FluentAssertions;
 using Machine.Specifications;
 using RichardSzalay.Hosts.Tests.Infrastructure;
-using RichardSzalay.Hosts.Tests.Properties;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace RichardSzalay.Hosts.Tests
 {
@@ -67,7 +64,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Establish context = () =>
             {
-                hostsFileContent = Resources.DefaultHostsFile;
+                hostsFileContent = "DefaultHostsFile";
 
                 expectedEntries = new HostEntry[]
                 {
@@ -84,7 +81,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Because of = () =>
             {
-                StringResource stringResource = new StringResource(hostsFileContent);
+                StringResource stringResource = StringResource.FromEmbeddedResource(hostsFileResource);
 
                 var hostsFile = new HostsFile(stringResource);
 
@@ -95,7 +92,7 @@ namespace RichardSzalay.Hosts.Tests
                 result = stringResource.ToString();
             };
 
-            protected static string hostsFileContent;
+            protected static string hostsFileResource;
             protected static Action<HostsFile> changeAction;
 
             protected static string result;
@@ -106,7 +103,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Establish context = () =>
             {
-                hostsFileContent = Resources.SampleHostsFile;
+                hostsFileResource = "SampleHostsFile";
 
                 changeAction = hostsFile =>
                 {
@@ -116,7 +113,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.Should().Be(Resources.SampleHostsFile_Disable);
+                result.Should().Be(EmbeddedResource.GetText("SampleHostsFile_Disable"));
 
             static HostEntry[] expectedEntries;
         }
@@ -126,7 +123,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Establish context = () =>
             {
-                hostsFileContent = Resources.SampleHostsFile;
+                hostsFileResource = "SampleHostsFile";
 
                 changeAction = hostsFile =>
                 {
@@ -136,7 +133,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.Should().Be(Resources.SampleHostsFile_Reorder);
+                result.Should().Be(EmbeddedResource.GetText("SampleHostsFile_Reorder"));
 
             static HostEntry[] expectedEntries;
         }
@@ -146,7 +143,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Establish context = () =>
             {
-                hostsFileContent = Resources.SampleHostsFile;
+                hostsFileResource = "SampleHostsFile";
 
                 changeAction = hostsFile =>
                 {
@@ -156,7 +153,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.Should().Be(Resources.SampleHostsFile_Delete);
+                result.Should().Be(EmbeddedResource.GetText("SampleHostsFile_Delete"));
 
             static HostEntry[] expectedEntries;
         }
@@ -166,7 +163,7 @@ namespace RichardSzalay.Hosts.Tests
         {
             Establish context = () =>
             {
-                hostsFileContent = Resources.ComplexHostsFile_Before;
+                hostsFileResource = "ComplexHostsFile_Before";
 
                 changeAction = hostsFile =>
                 {
@@ -190,7 +187,7 @@ namespace RichardSzalay.Hosts.Tests
             };
 
             It should_match_the_expected_output = () =>
-                result.Should().Be(Resources.ComplexHostsFile_Expected);
+                result.Should().Be(EmbeddedResource.GetText("ComplexHostsFile_Expected"));
 
             static HostEntry[] expectedEntries;
         }
