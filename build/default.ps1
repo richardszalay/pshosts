@@ -14,7 +14,7 @@ properties {
   $mspecCliPath = "$PSScriptRoot\..\packages\Machine.Specifications.Runner.Console.0.9.3\tools\mspec-clr4.exe"
 }
 
-if ($env:APPVEYOR) {
+if ($env:APPVEYOR -and $env:PWSH_RELEASE -eq "native") {
   task default -depends Appveyor
 } else {
   task default -depends Test
@@ -27,8 +27,7 @@ task TestLib -depends Compile {
 task TestCmdlets -depends Compile {
   # Run powershell with -NoProfile to avoid collisions with installed PsHosts
   
-  $pwsh = if ($env:_) { $env:_ } else { "powershell.exe" }
-  
+  $pwsh = (Get-PSHostProcessInfo $pid).ProcessName
   
   & $pwsh -NoProfile -Command {
       param($modulePath, $pattern)
@@ -84,7 +83,7 @@ task UpdateModuleVersion -depends Compile {
 
   if ($moduleVersion)
   {
-    Push-Location (Resolve-Path $PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\)
+    Push-Location (Resolve-Path $PSScriptRoot\..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\net40\)
     Update-ModuleManifest -Path .\PsHosts.psd1 -ModuleVersion $moduleVersion
     Pop-Location
   }
@@ -92,7 +91,7 @@ task UpdateModuleVersion -depends Compile {
 
 
 task Package -depends Test, UpdateModuleVersion, RegisterGallery {
-  Publish-Module -Repository pshosts-nupkg -Path (Resolve-Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts)
+  Publish-Module -Repository pshosts-nupkg -Path (Resolve-Path ..\RichardSzalay.Hosts.Powershell\bin\Release\PsHosts\net40)
 
   Unregister-PSRepository -Name pshosts-nupkg
 }
