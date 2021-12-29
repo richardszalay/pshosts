@@ -26,14 +26,14 @@ namespace RichardSzalay.Hosts.Tests.Infrastructure
         {
             stream.Seek(0L, SeekOrigin.Begin);
 
-            return stream;
+            return new NoDisposeStream(stream);
         }
 
         public Stream OpenWrite()
         {
-            stream = new MemoryStream();
+            stream.Seek(0L, SeekOrigin.Begin);
 
-            return stream;
+            return new NoDisposeStream(stream);
         }
 
         #endregion
@@ -43,6 +43,64 @@ namespace RichardSzalay.Hosts.Tests.Infrastructure
             byte[] buffer = stream.ToArray();
 
             return Encoding.UTF8.GetString(buffer);
+        }
+
+        class NoDisposeStream : Stream, System.IDisposable
+        {
+            private readonly Stream inner;
+
+            public NoDisposeStream(Stream inner)
+            {
+                this.inner = inner;
+            }
+
+            public override bool CanRead => inner.CanRead;
+
+            public override bool CanSeek => inner.CanSeek;
+
+            public override bool CanWrite => inner.CanWrite;
+
+            public override long Length => inner.Length;
+
+            public override long Position
+            {
+                get => inner.Position;
+                set => inner.Position = value;
+            }
+
+            public override void Flush()
+            {
+                inner.Flush();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                return inner.Read(buffer, offset, count);
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                return inner.Seek(offset, origin);
+            }
+
+            public override void SetLength(long value)
+            {
+                inner.SetLength(value);
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                inner.Write(buffer, offset, count);
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+            }
+
+            void System.IDisposable.Dispose()
+            {
+
+            }
         }
     }
 }

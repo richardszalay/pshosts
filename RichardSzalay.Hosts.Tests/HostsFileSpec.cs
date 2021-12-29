@@ -350,5 +350,140 @@ namespace RichardSzalay.Hosts.Tests
             static HostsFile sut;
             static HostEntry newEntry;
         }
+
+        [Subject(typeof(HostsFile))]
+        class When_saving_changes_after_another_process_has_made_unconflicting_changes
+        {
+            Establish context = () =>
+            {
+                resource = new StringResource(Resources.SampleHostsFile);
+                sut = new HostsFile(resource);
+
+                sut.DeleteEntry(
+                        sut.Entries.First(c => c.Name == "host1.localhost"));
+
+                var other = new HostsFile(resource);
+                other.Entries.First(c => c.Name == "host2.localhost").Enabled = true;
+                other.Save();
+            };
+
+            Because of = () =>
+                sut.Save();
+
+            It should_include_both_sets_of_changes = () =>
+                resource.ToString().Should().Be(Resources.SampleHostsFile_MultiProcess);
+
+            static HostsFile sut;
+            static StringResource resource;
+        }
+
+
+        [Subject(typeof(HostsFile))]
+        class When_saving_a_deleted_entry_that_has_been_changed_by_another_process
+        {
+            Establish context = () =>
+            {
+                resource = new StringResource(Resources.SampleHostsFile);
+                sut = new HostsFile(resource);
+
+                sut.DeleteEntry(
+                    sut.Entries.First(c => c.Name == "host1.localhost"));
+
+                var other = new HostsFile(resource);
+                other.Entries.First(c => c.Name == "host1.localhost").Enabled = false;
+                other.Save();
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => sut.Save());
+
+            It should_fail_to_save = () =>
+                result.Message.Should().Contain("Host file write conflict: Line 22 has been modified by another process");
+
+            static HostsFile sut;
+            static StringResource resource;
+            static Exception result;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_saving_a_deleted_entry_that_has_been_deleted_by_another_process
+        {
+            Establish context = () =>
+            {
+                resource = new StringResource(Resources.SampleHostsFile);
+                sut = new HostsFile(resource);
+
+                sut.DeleteEntry(
+                    sut.Entries.First(c => c.Name == "host2.localhost"));
+
+                var other = new HostsFile(resource);
+                other.DeleteEntry(
+                    other.Entries.First(c => c.Name == "host2.localhost"));
+                other.Save();
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => sut.Save());
+
+            It should_fail_to_save = () =>
+                result.Message.Should().Contain("Host file write conflict: Line 23 has been modified by another process");
+
+            static HostsFile sut;
+            static StringResource resource;
+            static Exception result;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_saving_an_updated_entry_that_has_been_changed_by_another_process
+        {
+            Establish context = () =>
+            {
+                resource = new StringResource(Resources.SampleHostsFile);
+                sut = new HostsFile(resource);
+
+                sut.Entries.First(c => c.Name == "host1.localhost").Address = "127.0.0.2";
+
+                var other = new HostsFile(resource);
+                other.Entries.First(c => c.Name == "host1.localhost").Enabled = false;
+                other.Save();
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => sut.Save());
+
+            It should_fail_to_save = () =>
+                result.Message.Should().Contain("Host file write conflict: Line 22 has been modified by another process");
+
+            static HostsFile sut;
+            static StringResource resource;
+            static Exception result;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_saving_an_updated_entry_that_has_been_deleted_by_another_process
+        {
+            Establish context = () =>
+            {
+                resource = new StringResource(Resources.SampleHostsFile);
+                sut = new HostsFile(resource);
+
+                sut.Entries.First(c => c.Name == "host2.localhost").Address = "127.0.0.2";
+
+                var other = new HostsFile(resource);
+                other.DeleteEntry(
+                    other.Entries.First(c => c.Name == "host2.localhost"));
+                other.Save();
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => sut.Save());
+
+            It should_fail_to_save = () =>
+                result.Message.Should().Contain("Line 23 of hosts file has been modified by another process");
+
+            static HostsFile sut;
+            static StringResource resource;
+            static Exception result;
+        }
     }
 }
