@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace RichardSzalay.Hosts
 {
     public class HostsFile
     {
         private readonly IResource resource;
-
         private string[] lines;
         private List<HostEntry> entries;
 
         private List<int> deletedLines;
+
+        public const double DefaultFileLockWait = 5.0;
 
         private const string AddressExpression = @"[\da-fA-F\.\:]+";
         private const string EntryExpression = @"^(?'Disabled'\#)?\s*" +
@@ -27,42 +30,59 @@ namespace RichardSzalay.Hosts
         private static readonly Regex lineRegex = new Regex(EntryExpression);
 
         public HostsFile()
-            : this(DefaultHostsFileLocation)
+            : this(DefaultHostsFileLocation, DefaultFileLockWait)
+        {
+        }
+
+        public HostsFile(double maxFileLockWaitSeconds)
+            : this(DefaultHostsFileLocation, maxFileLockWaitSeconds)
         {
         }
 
         public HostsFile(string filename)
-            : this(new FileInfoResource(filename))
+            : this(new FileInfoResource(filename), DefaultFileLockWait)
         {
 
         }
 
-        internal HostsFile(IResource resource)
+        public HostsFile(string filename, double maxFileLockWaitSeconds)
+            : this(new FileInfoResource(filename), maxFileLockWaitSeconds)
+        {
+
+        }
+
+        internal HostsFile(IResource resource, double maxFileLockWaitSeconds = DefaultFileLockWait)
         {
             this.resource = resource;
-
+            this.MaxFileLockWaitSeconds = maxFileLockWaitSeconds;
             this.Load();
         }
 
         public void Load()
         {
-            using (Stream stream = this.resource.OpenRead())
+            RetryExclusiveLock(() =>
             {
-                this.Load(stream);
-            }
+                using (Stream stream = this.resource.OpenRead())
+                {
+                    this.Load(stream);
+                }
+            });
         }
 
         public void Save()
         {
-            using (Stream stream = this.resource.OpenWrite())
+            RetryExclusiveLock(() =>
             {
-                this.Save(stream);
+                using (Stream stream = this.resource.OpenWrite())
+                {
+                    this.Save(stream);
 
-                stream.Flush();
+                    stream.Flush();
 
-                stream.Seek(0L, SeekOrigin.Begin);
-                this.Load(stream);
-            }
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    this.Load(stream);
+                }
+            });
         }
 
         private void Load(Stream stream)
@@ -290,6 +310,77 @@ namespace RichardSzalay.Hosts
                         throw new NotSupportedException("Unable to detect hosts location for platform: " + Environment.OSVersion.Platform);
                 }
             }
+        }
+
+        private double maxFileLockWaitSeconds = DefaultFileLockWait;
+        public double MaxFileLockWaitSeconds
+        {
+            get => maxFileLockWaitSeconds;
+            set
+            {
+                if (maxFileLockWaitSeconds < 0)
+                {
+                    throw new ArgumentException("MaxFileLockWaitSeconds must be >= 0");
+                }
+
+                maxFileLockWaitSeconds = value;
+            }
+        }
+
+        private void RetryExclusiveLock(Action action)
+        {
+            if (maxFileLockWaitSeconds == 0)
+            {
+                action();
+                return;
+            }
+
+            var wait = TimeSpan.FromSeconds(maxFileLockWaitSeconds);
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            Exception lastlockException = null;
+
+            while (stopwatch.Elapsed < wait)
+            {
+                try
+                {
+                    action();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (IsFileLockException(ex))
+                    {
+                        lastlockException = ex;
+                        Thread.Sleep(50);
+                        continue;
+                    }
+                    
+                    throw;
+                }
+            }
+
+            throw new Exception($"Unable to acquire file lock after {maxFileLockWaitSeconds} seconds", lastlockException);
+        }
+
+        private bool IsFileLockException(Exception ex)
+        {
+            var isFileLockException = ex is IOException ioException &&
+                (
+                    IsFileLockHResult(System.Runtime.InteropServices.Marshal.GetHRForException(ex)) ||
+                    ex.Message.Contains("it is being used by another process")
+                );
+
+            return isFileLockException ||
+                (ex.InnerException != null && IsFileLockException(ex.InnerException));
+        }
+
+        private bool IsFileLockHResult(int hResult)
+        {
+            return hResult == -2147024864 // Windows
+                || hResult == 11; // Linux
         }
     }
 }

@@ -11,6 +11,9 @@ namespace RichardSzalay.Hosts.Powershell
         [Parameter]
         public string HostsPath { get; set; }
 
+        [Parameter]
+        public double LockWaitSeconds { get; set; } = HostsFile.DefaultFileLockWait;
+
         private string GetHostsPath()
         {
             return String.IsNullOrEmpty(HostsPath)
@@ -23,8 +26,8 @@ namespace RichardSzalay.Hosts.Powershell
             var suppliedHostsPath = GetHostsPath();
             
             return String.IsNullOrEmpty(suppliedHostsPath)
-                ? new HostsFile()
-                : new HostsFile(suppliedHostsPath);
+                ? new HostsFile(LockWaitSeconds)
+                : new HostsFile(suppliedHostsPath, LockWaitSeconds);
         }
 
         protected bool TryGetHostEntries(HostsFile hostsFile, string name, int line, bool requireMatch, out ICollection<HostEntry> hostEntries)

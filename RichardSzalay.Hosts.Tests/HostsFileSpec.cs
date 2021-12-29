@@ -4,8 +4,11 @@ using RichardSzalay.Hosts.Tests.Infrastructure;
 using RichardSzalay.Hosts.Tests.Properties;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RichardSzalay.Hosts.Tests
 {
@@ -479,11 +482,119 @@ namespace RichardSzalay.Hosts.Tests
                 result = Catch.Exception(() => sut.Save());
 
             It should_fail_to_save = () =>
-                result.Message.Should().Contain("Line 23 of hosts file has been modified by another process");
+                result.Message.Should().Contain("Host file write conflict: Line 23 has been modified by another process");
 
             static HostsFile sut;
             static StringResource resource;
             static Exception result;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_file_lock_is_released_before_timeout_for_read
+        {
+            Establish context = () =>
+            {
+                var hostsFilePath = Path.GetTempFileName();
+                File.WriteAllText(hostsFilePath, "127.0.0.1 host1.localhost");
+
+                var hostsFile = new FileInfo(hostsFilePath);
+                resource = new FileInfoResource(hostsFile);
+
+                var externalLock = resource.OpenWrite();
+                Task.Delay(500).ContinueWith(_ => externalLock.Dispose());
+            };
+
+            Because of = () =>
+                sut = new HostsFile(resource);
+
+            It complete_successfully = () =>
+                sut.Entries.Should().Contain(c => c.Name == "host1.localhost");
+
+            static HostsFile sut;
+            static FileInfoResource resource;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_file_lock_is_released_after_timeout_for_read
+        {
+            Establish context = () =>
+            {
+                var hostsFilePath = Path.GetTempFileName();
+
+                var hostsFile = new FileInfo(hostsFilePath);
+                resource = new FileInfoResource(hostsFile);
+
+                var externalLock = resource.OpenWrite();
+                Task.Delay(1000).ContinueWith(_ => externalLock.Dispose());
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => new HostsFile(resource, maxFileLockWaitSeconds: 0.5));
+
+            It fails = () =>
+                result.Message.Should().Be("Unable to acquire file lock after 0.5 seconds");
+
+            static HostsFile sut;
+            static Exception result;
+            static FileInfoResource resource;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_file_lock_is_released_before_timeout_for_write
+        {
+            Establish context = () =>
+            {
+                var hostsFilePath = Path.GetTempFileName();
+                File.WriteAllText(hostsFilePath, "127.0.0.1 host1.localhost");
+
+                var hostsFile = new FileInfo(hostsFilePath);
+                resource = new FileInfoResource(hostsFile);
+
+                sut = new HostsFile(resource, maxFileLockWaitSeconds: 1.5);
+                sut.AddEntry(
+                    new HostEntry("host1.localhost", "127.0.0.1", null));
+
+                var externalLock = resource.OpenWrite();
+                Task.Delay(1000).ContinueWith(_ => externalLock.Dispose());
+            };
+
+            Because of = () =>
+                sut.Save();
+
+            It complete_successfully = () =>
+                sut.Entries.Should().Contain(c => c.Name == "host1.localhost");
+
+            static HostsFile sut;
+            static FileInfoResource resource;
+        }
+
+        [Subject(typeof(HostsFile))]
+        class When_file_lock_is_released_after_timeout_for_write
+        {
+            Establish context = () =>
+            {
+                var hostsFilePath = Path.GetTempFileName();
+
+                var hostsFile = new FileInfo(hostsFilePath);
+                resource = new FileInfoResource(hostsFile);
+
+                sut = new HostsFile(resource, maxFileLockWaitSeconds: 0.5);
+                sut.AddEntry(
+                    new HostEntry("host1.localhost", "127.0.0.1", null));
+
+                var externalLock = resource.OpenWrite();
+                Task.Delay(1000).ContinueWith(_ => externalLock.Dispose());
+            };
+
+            Because of = () =>
+                result = Catch.Exception(() => sut.Save());
+
+            It fails = () =>
+                result.Message.Should().Be("Unable to acquire file lock after 0.5 seconds");
+
+            static HostsFile sut;
+            static Exception result;
+            static FileInfoResource resource;
         }
     }
 }
