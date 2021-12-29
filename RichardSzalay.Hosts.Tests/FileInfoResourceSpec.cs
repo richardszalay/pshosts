@@ -30,6 +30,8 @@ namespace RichardSzalay.Hosts.Tests
                     writer.Write("Test 2");
 
                     stream.Flush();
+
+                    stream.SetLength(stream.Position);
                 }
 
                 result = File.ReadAllText(tempFile.FullName);

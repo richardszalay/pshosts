@@ -26,7 +26,7 @@ namespace RichardSzalay.Hosts
 
         public Stream OpenWrite()
         {
-            return File.Create(this.file.FullName);
+            return new FileStream(this.file.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
 
         #endregion

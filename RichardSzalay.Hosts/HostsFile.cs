@@ -88,11 +88,19 @@ namespace RichardSzalay.Hosts
 
         internal void Save(Stream stream)
         {
+            deletedLines.Sort();
+
+            var newLines = this.ReadAllLines(stream);
+            this.ValidateOptimisticConcurrency(newLines);
+            this.lines = newLines;
+
             this.ApplyChanges();
+
+            stream.Seek(0L, SeekOrigin.Begin);
 
             StreamWriter writer = new StreamWriter(stream);
 
-            deletedLines.Sort();
+            
             Queue<int> deletedLinesQueue = new Queue<int>(deletedLines);
 
             for (int i = 0; i < lines.Length; i++)
@@ -108,6 +116,35 @@ namespace RichardSzalay.Hosts
             }
 
             writer.Flush();
+
+            stream.SetLength(stream.Position);
+        }
+
+        private void ValidateOptimisticConcurrency(string[] newLines)
+        {
+            foreach (HostEntry entry in entries)
+            {
+                if (entry.IsDirty && !entry.IsNew)
+                {
+                    if (entry.Line >= newLines.Length || newLines[entry.Line] != lines[entry.Line])
+                    {
+                        ThrowOptimisticConcurrencyError(entry.Line);
+                    }
+                }
+            }
+
+            foreach (var deletedLine in deletedLines)
+            {
+                if (deletedLine >= newLines.Length || newLines[deletedLine] != lines[deletedLine])
+                {
+                    ThrowOptimisticConcurrencyError(deletedLine);
+                }
+            }
+        }
+
+        private void ThrowOptimisticConcurrencyError(int deletedLine)
+        {
+            throw new Exception($"Host file write conflict: Line {deletedLine} has been modified by another process");
         }
 
         private void ApplyChanges()
