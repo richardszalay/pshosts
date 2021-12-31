@@ -39,8 +39,8 @@ param(
     [ValidateSet("Debug", "Release")]
     [string] $Configuration = "Debug",
 
-    [ValidateSet("netstandard2.0", "net5.0")]
-    [string] $Framework = "net5.0"
+    [ValidateSet("netstandard2.0", "net5.0", "net6.0")]
+    [string] $Framework = "net6.0"
 )
 
 # Clean step

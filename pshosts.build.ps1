@@ -19,8 +19,8 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = (property Configuration Release),
 
-    [ValidateSet("netstandard2.0", "net5.0")]
-    [string]$Framework = "net5.0",
+    [ValidateSet("netstandard2.0", "net5.0", "net6.0")]
+    [string]$Framework = "net6.0",
 
     [switch]$CheckHelpContent
 )
@@ -96,23 +96,32 @@ task RunLibTests BuildLibTests, {
 Synopsis: Run the Pester tests
 #>
 task RunPesterTests LayoutModule, {
-	powershell.exe -NoProfile -Command {
-      param($modulePath, $pattern)
+    & (Get-PSExePath) -NoProfile -Command {
+      param($scriptRoot, $targetDir)
+	  
+	$modulePath = "$scriptRoot/$targetDir/PsHosts.psd1"
+	$pattern = "$scriptRoot/RichardSzalay.Hosts.Powershell.Tests/*"
+	  
+	Import-Module "$scriptRoot/tools/helper.psm1"
+        Import-Module $modulePath -Force      
 
-      Import-Module $modulePath -Force      
-      $res = Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml -PassThru
+        if (-not (Get-Module -Name Pester -ListAvailable)) {
+          Write-Log -Warning "Module 'Pester' is missing. Installing 'Pester' ..."
+          Install-Module -Name Pester -Scope CurrentUser -Force -RequiredVersion 4.10.1
+        }
 
-      if ($env:APPVEYOR_JOB_ID)
-      {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\ps-results.xml))
-      }
+        $res = Invoke-Pester -Script @{ Path = $pattern } -OutputFormat NUnitXml -OutputFile .\ps-results.xml -PassThru
 
-      if ($res.FailedCount -gt 0) { 
+        if ($env:APPVEYOR_JOB_ID)
+        {
+          $wc = New-Object 'System.Net.WebClient'
+          $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\ps-results.xml))
+        }
+
+        if ($res.FailedCount -gt 0) { 
           throw "$($res.FailedCount) tests failed."
-      }
-
-  } -args "$PSScriptRoot/$targetDir/PsHosts.psd1","$PSScriptRoot\RichardSzalay.Hosts.Powershell.Tests\*"
+        }
+  } -args "$PSScriptRoot", $targetDir
 }
 
 <#

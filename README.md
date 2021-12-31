@@ -95,13 +95,12 @@ Get-HostEntry | ?{$_.IsLoopback} | Disable-HostEntry
 
 ## Development
 
-Building is only currently supported on Windows in order to continue supporting PowerShell 3. The Linux/macOS Travis-CI builds simply run the test suite against a pre-built module.
+Building is supported on all platforms with PowerShell.
 
-PsHosts uses [psake](https://github.com/psake/psake) for build automation. Tests can be run by running the following from the root of the repository:
+PsHosts uses [Invoke-Build](https://github.com/nightroman/Invoke-Build) for build automation. Tests can be run by running the following from the root of the repository:
 
-```
-Import-Module .\build\psake\psake.psd1
-Invoke-psake .\build\default.ps1
+```powershell
+.\build.ps1 -Test
 ```
 
 The solution is made up of a number of projects:
