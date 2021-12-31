@@ -11,7 +11,7 @@
     <StartArguments>-NoExit -Command "Import-Module .\PsHosts.psd1"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\$(Configuration)\PsHosts\</OutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <Import Project="Zip.tasks" />
   <Target Name="PackagePsGetArchive" AfterTargets="Build" Condition="'$(PackagePsGetArchive)'=='true'">
